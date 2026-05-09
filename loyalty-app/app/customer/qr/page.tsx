@@ -1,7 +1,7 @@
 import { Sparkles } from "lucide-react";
 import { CustomerShell } from "@/components/customer/customer-shell";
 import { TierBadge } from "@/components/customer/tier-badge";
-import { getCustomer } from "@/lib/mock-data";
+import { requireCustomerSession } from "@/lib/auth/session";
 import { formatPoints } from "@/lib/formatters";
 import { getTier } from "@/lib/loyalty";
 
@@ -10,8 +10,8 @@ const qrCells = Array.from(
   (_, index) => index % 2 === 0 || index % 7 === 0 || [3, 9, 30, 58, 93].includes(index)
 );
 
-export default function CustomerQrPage() {
-  const customer = getCustomer();
+export default async function CustomerQrPage() {
+  const { customer } = await requireCustomerSession();
   const tier = getTier(customer.pointsBalance);
 
   return (

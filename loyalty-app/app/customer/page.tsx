@@ -5,18 +5,27 @@ import { CustomerShell } from "@/components/customer/customer-shell";
 import { PointsBalanceCard } from "@/components/customer/points-balance-card";
 import { TierBadge } from "@/components/customer/tier-badge";
 import { RewardCard } from "@/components/customer/reward-card";
-import { getBranch, getCustomer, getCustomerTransactions, getReward, rewards } from "@/lib/mock-data";
+import { requireCustomerSession } from "@/lib/auth/session";
+import { listBranches } from "@/lib/data/branches";
+import { getCustomerRecentTransactions } from "@/lib/data/customers";
+import { listActiveRewards } from "@/lib/data/rewards";
 import { formatDate, formatPoints } from "@/lib/formatters";
 import { getNextTier, getTier, leavesToNextTier, tierProgress } from "@/lib/loyalty";
 
-export default function CustomerHome() {
-  const customer = getCustomer();
+export default async function CustomerHome() {
+  const { customer } = await requireCustomerSession();
+  const [recent, rewards, branches] = await Promise.all([
+    getCustomerRecentTransactions(customer.id, 3),
+    listActiveRewards(),
+    listBranches()
+  ]);
+  const branchById = new Map(branches.map((branch) => [branch.id, branch]));
+  const rewardById = new Map(rewards.map((reward) => [reward.id, reward]));
   const firstName = customer.name.split(" ")[0];
   const tier = getTier(customer.pointsBalance);
   const nextTier = getNextTier(customer.pointsBalance);
   const leavesToNext = leavesToNextTier(customer.pointsBalance);
   const progress = tierProgress(customer.pointsBalance);
-  const recent = getCustomerTransactions(customer.id).slice(0, 3);
   const featured = rewards.slice(0, 2);
 
   return (
@@ -83,8 +92,8 @@ export default function CustomerHome() {
             const earned = transaction.pointsDelta > 0;
             const label =
               transaction.type === "redeem"
-                ? getReward(transaction.rewardId ?? "")?.name ?? "Reward redeemed"
-                : getBranch(transaction.branchId)?.name ?? "Manual moment";
+                ? rewardById.get(transaction.rewardId ?? "")?.name ?? "Reward redeemed"
+                : branchById.get(transaction.branchId ?? "")?.name ?? "Manual moment";
             return (
               <li
                 key={transaction.id}

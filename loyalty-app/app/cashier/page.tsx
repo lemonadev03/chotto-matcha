@@ -2,54 +2,64 @@ import { ArrowRight, KeyRound } from "lucide-react";
 import { Button } from "@/components/shared/button";
 import { CashierShell } from "@/components/cashier/cashier-shell";
 import { Eyebrow } from "@/components/shared/eyebrow";
-import { branches, staff } from "@/lib/mock-data";
+import { startCashierShift } from "@/app/cashier/actions";
+import { getCashierShiftCookie } from "@/lib/auth/shift";
+import { requireCashierSession } from "@/lib/auth/session";
+import { getBranchById } from "@/lib/data/branches";
 
-export default function CashierPage() {
-  const branch = branches[0];
-  const roster = staff.filter((member) => member.role === "cashier" && member.branchId === branch.id);
+export default async function CashierPage({
+  searchParams
+}: {
+  searchParams: Promise<{ pin?: string }>;
+}) {
+  const [{ profile, roleDetail }, shift, params] = await Promise.all([
+    requireCashierSession(),
+    getCashierShiftCookie(),
+    searchParams
+  ]);
+  const branch = roleDetail.branchId ? await getBranchById(roleDetail.branchId) : null;
+  const activeShift = shift?.staffProfileId === profile.id && shift.branchId === roleDetail.branchId;
 
   return (
-    <CashierShell>
+    <CashierShell sessionLabel={branch ? `${branch.name} · ${profile.name}` : profile.name}>
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <section className="rounded-lg border border-line-soft bg-cream p-7">
           <Eyebrow className="text-matcha-deep">Branch device</Eyebrow>
           <h1 className="mt-3 font-display text-[40px] font-medium leading-[44px] text-charcoal">
-            {branch.name}
+            {branch?.name ?? "No branch assigned"}
           </h1>
-          <p className="mt-2 text-sm leading-6 text-ink-muted">{branch.address}</p>
+          <p className="mt-2 text-sm leading-6 text-ink-muted">{branch?.address ?? "Ask a manager to assign a branch."}</p>
 
-          <div className="mt-7 grid gap-3">
-            {roster.map((member) => (
-              <div
-                key={member.id}
-                className="flex items-center justify-between rounded-md border border-line-soft bg-stone/40 p-4"
-              >
-                <div>
-                  <p className="font-medium text-charcoal">{member.name}</p>
-                  <p className="mt-1 text-xs text-ink-muted">PIN required</p>
-                </div>
-                <button
-                  type="button"
-                  aria-label={`Start ${member.name} shift`}
-                  className="grid h-11 w-11 place-items-center rounded-pill bg-matcha-deep text-cream transition-colors duration-fast ease-out-soft hover:bg-forest"
-                >
-                  <KeyRound className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-                </button>
-              </div>
-            ))}
-          </div>
+          <form action={startCashierShift} className="mt-7 grid max-w-sm gap-3">
+            <label className="grid gap-2 text-sm font-medium text-charcoal">
+              Shift PIN
+              <input
+                name="pin"
+                type="password"
+                inputMode="numeric"
+                className="rounded-md border border-line bg-cream px-4 py-3 text-base"
+                placeholder="1234"
+              />
+            </label>
+            {params.pin === "invalid" ? <p className="text-sm text-error-text">Invalid PIN.</p> : null}
+            <Button type="submit" icon={KeyRound} disabled={!branch}>Start shift</Button>
+          </form>
         </section>
         <aside className="rounded-lg border border-line-soft bg-cream p-7">
           <Eyebrow className="text-matcha-deep">Active session</Eyebrow>
           <h2 className="mt-3 font-display text-[24px] font-medium leading-[30px] text-charcoal">
-            Mika is on the bar
+            {activeShift ? `${profile.name} is on the bar` : "No active shift"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-ink-muted">
-            Identify a member, then award leaves or redeem a reward.
+            {activeShift
+              ? "Identify a member, then award leaves or redeem a reward."
+              : "Enter your assigned PIN to unlock cashier actions."}
           </p>
-          <Button href="/cashier/identify" icon={ArrowRight} iconPosition="trailing" className="mt-6 w-full">
-            Identify member
-          </Button>
+          {activeShift ? (
+            <Button href="/cashier/identify" icon={ArrowRight} iconPosition="trailing" className="mt-6 w-full">
+              Identify member
+            </Button>
+          ) : null}
         </aside>
       </div>
     </CashierShell>

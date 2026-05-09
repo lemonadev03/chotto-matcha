@@ -1,18 +1,17 @@
 import { ChevronRight, LogOut, Mail, Phone, Settings2, Sparkles } from "lucide-react";
 import { CustomerShell } from "@/components/customer/customer-shell";
 import { TierBadge } from "@/components/customer/tier-badge";
-import { getCustomer } from "@/lib/mock-data";
+import { requireCustomerSession } from "@/lib/auth/session";
 import { initials, formatPoints } from "@/lib/formatters";
 import { getNextTier, getTier, leavesToNextTier, tiers } from "@/lib/loyalty";
 
 const links = [
   { label: "Notifications", description: "Quiet pings only", icon: Sparkles, href: "#" },
-  { label: "Preferences", description: "Drink, milk, sweetness", icon: Settings2, href: "#" },
-  { label: "Sign out", description: "Step away for now", icon: LogOut, href: "/" }
+  { label: "Preferences", description: "Drink, milk, sweetness", icon: Settings2, href: "#" }
 ];
 
-export default function CustomerProfilePage() {
-  const customer = getCustomer();
+export default async function CustomerProfilePage() {
+  const { customer } = await requireCustomerSession();
   const tier = getTier(customer.pointsBalance);
   const nextTier = getNextTier(customer.pointsBalance);
   const toNext = leavesToNextTier(customer.pointsBalance);
@@ -102,6 +101,21 @@ export default function CustomerProfilePage() {
             <ChevronRight className="h-4 w-4 text-ink-faint" strokeWidth={1.5} aria-hidden="true" />
           </a>
         ))}
+        <form action="/customer/logout" method="post">
+          <button
+            type="submit"
+            className="flex w-full items-center gap-3 rounded-md border border-line-soft bg-cream p-4 text-left transition-colors duration-fast ease-out-soft hover:bg-stone"
+          >
+            <span className="grid h-10 w-10 place-items-center rounded-pill bg-stone text-charcoal">
+              <LogOut className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-medium text-charcoal">Sign out</span>
+              <span className="block text-xs text-ink-muted">Step away for now</span>
+            </span>
+            <ChevronRight className="h-4 w-4 text-ink-faint" strokeWidth={1.5} aria-hidden="true" />
+          </button>
+        </form>
       </section>
     </CustomerShell>
   );

@@ -2,12 +2,16 @@ import Link from "next/link";
 import { Camera, Search } from "lucide-react";
 import { CashierShell } from "@/components/cashier/cashier-shell";
 import { Eyebrow } from "@/components/shared/eyebrow";
-import { customers } from "@/lib/mock-data";
+import { requireCashierShiftSession } from "@/lib/auth/session";
+import { listCustomers } from "@/lib/data/customers";
 import { formatPoints } from "@/lib/formatters";
 
-export default function CashierIdentifyPage() {
+export default async function CashierIdentifyPage() {
+  const { profile, branch } = await requireCashierShiftSession();
+  const customers = (await listCustomers()).filter((customer) => customer.active);
+
   return (
-    <CashierShell>
+    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
       <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
         <section className="grid min-h-[480px] place-items-center rounded-lg border border-line-soft bg-cream p-8 text-center">
           <div>

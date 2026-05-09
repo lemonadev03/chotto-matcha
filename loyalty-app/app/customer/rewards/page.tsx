@@ -1,12 +1,14 @@
 import { RewardCard } from "@/components/customer/reward-card";
 import { CustomerShell } from "@/components/customer/customer-shell";
-import { getCustomer, rewards } from "@/lib/mock-data";
+import { requireCustomerSession } from "@/lib/auth/session";
+import { listActiveRewards } from "@/lib/data/rewards";
 import { formatPoints } from "@/lib/formatters";
 
 const filters = ["All", "Drinks", "Treats", "Merch"];
 
-export default function CustomerRewardsPage() {
-  const customer = getCustomer();
+export default async function CustomerRewardsPage() {
+  const { customer } = await requireCustomerSession();
+  const rewards = await listActiveRewards();
   const ready = rewards.filter((r) => customer.pointsBalance >= r.pointCost && r.active && (r.stockCount ?? 1) > 0);
   const onTheWay = rewards.filter((r) => !ready.includes(r));
 

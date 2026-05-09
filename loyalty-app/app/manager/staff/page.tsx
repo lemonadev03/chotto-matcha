@@ -1,32 +1,66 @@
+import { Plus } from "lucide-react";
 import { ManagerShell } from "@/components/manager/manager-shell";
 import { DataTable } from "@/components/shared/table";
 import { SectionTitle } from "@/components/shared/section-title";
 import { Pill } from "@/components/shared/pill";
-import { getBranch, staff } from "@/lib/mock-data";
+import { Button } from "@/components/shared/button";
+import { resetStaffPin, setStaffActive } from "@/app/manager/actions";
+import { listManagerStaff } from "@/lib/data/manager";
 
-export default function ManagerStaffPage() {
+export default async function ManagerStaffPage() {
+  const staff = await listManagerStaff();
+
   return (
     <ManagerShell>
       <div className="space-y-7">
-        <SectionTitle eyebrow="Team" title="Staff" />
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <SectionTitle eyebrow="Team" title="Staff" />
+          <Button href="/manager/staff/new" icon={Plus}>Add staff</Button>
+        </div>
         <DataTable
-          headers={["Name", "Role", "Branch", "PIN", "Status"]}
-          rows={staff.map((member) => [
-            <span key={`${member.id}-name`} className="font-medium text-charcoal">
-              {member.name}
+          headers={["Name", "Role", "Branch", "PIN", "Status", "Actions"]}
+          rows={staff.map(({ profile, detail, branchName }) => [
+            <span key={`${profile.id}-name`} className="font-medium text-charcoal">
+              {profile.name}
             </span>,
-            <span key={`${member.id}-role`} className="capitalize text-sm text-ink-muted">
-              {member.role}
+            <span key={`${profile.id}-role`} className="capitalize text-sm text-ink-muted">
+              {detail.role}
             </span>,
-            <span key={`${member.id}-branch`} className="text-sm text-ink-muted">
-              {getBranch(member.branchId)?.name ?? "All branches"}
+            <span key={`${profile.id}-branch`} className="text-sm text-ink-muted">
+              {branchName ?? "All branches"}
             </span>,
-            <span key={`${member.id}-pin`} className="text-sm text-ink-muted">
-              {member.pinSet ? "Set" : "Not required"}
+            <span key={`${profile.id}-pin`} className="text-sm text-ink-muted">
+              {detail.pinHash ? "Set" : "Not required"}
             </span>,
-            <Pill key={`${member.id}-status`} tone={member.active ? "default" : "muted"}>
-              {member.active ? "Active" : "Resting"}
-            </Pill>
+            <Pill key={`${profile.id}-status`} tone={profile.active ? "default" : "muted"}>
+              {profile.active ? "Active" : "Resting"}
+            </Pill>,
+            <div key={`${profile.id}-actions`} className="flex flex-wrap items-center gap-2">
+              <Button href={`/manager/staff/${profile.id}/edit`} variant="tertiary">
+                Edit
+              </Button>
+              {detail.role === "cashier" ? (
+                <form action={resetStaffPin} className="flex items-center gap-1">
+                  <input type="hidden" name="id" value={profile.id} />
+                  <input
+                    name="pin"
+                    inputMode="numeric"
+                    className="h-9 w-20 rounded-md border border-line bg-cream px-2 text-sm"
+                    placeholder="PIN"
+                  />
+                  <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal">
+                    Reset
+                  </button>
+                </form>
+              ) : null}
+              <form action={setStaffActive}>
+                <input type="hidden" name="id" value={profile.id} />
+                <input type="hidden" name="active" value={profile.active ? "false" : "true"} />
+                <button className="h-9 rounded-md border border-line bg-cream px-3 text-xs font-medium text-charcoal">
+                  {profile.active ? "Deactivate" : "Reactivate"}
+                </button>
+              </form>
+            </div>
           ])}
         />
       </div>

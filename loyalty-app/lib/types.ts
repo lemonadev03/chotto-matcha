@@ -23,7 +23,8 @@ export type Customer = {
   name: string;
   phone: string;
   pointsBalance: number;
-  createdAt: string;
+  active?: boolean;
+  createdAt: string | Date;
 };
 
 export type Asset = {
@@ -40,7 +41,7 @@ export type Reward = {
   id: string;
   name: string;
   description: string;
-  imageAssetId: string;
+  imageAssetId: string | null;
   pointCost: number;
   type: "item" | "merch";
   stockCount: number | null;

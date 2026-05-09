@@ -1,38 +1,70 @@
 import { ManagerShell } from "@/components/manager/manager-shell";
 import { DataTable } from "@/components/shared/table";
 import { SectionTitle } from "@/components/shared/section-title";
-import { customers, getBranch, getReward, getStaff, transactions } from "@/lib/mock-data";
+import { listBranches } from "@/lib/data/branches";
+import { listTransactionsWithLabels } from "@/lib/data/manager";
 import { formatDate, formatPeso, formatPoints } from "@/lib/formatters";
 
-export default function ManagerTransactionsPage() {
+export default async function ManagerTransactionsPage({
+  searchParams
+}: {
+  searchParams: Promise<{ type?: string; branchId?: string; customerId?: string; from?: string; to?: string }>;
+}) {
+  const params = await searchParams;
+  const type = params.type === "earn" || params.type === "redeem" || params.type === "manual" ? params.type : undefined;
+  const [transactions, branches] = await Promise.all([
+    listTransactionsWithLabels({
+      type,
+      branchId: params.branchId || undefined,
+      customerId: params.customerId || undefined,
+      from: params.from ? new Date(params.from) : undefined,
+      to: params.to ? new Date(params.to) : undefined
+    }),
+    listBranches()
+  ]);
+
   return (
     <ManagerShell>
       <div className="space-y-7">
         <SectionTitle eyebrow="Ledger" title="Transactions" />
+        <form className="grid gap-3 rounded-lg border border-line-soft bg-cream p-4 md:grid-cols-5">
+          <select name="type" defaultValue={type ?? ""} className="rounded-md border border-line bg-cream px-3 py-2 text-sm">
+            <option value="">All types</option>
+            <option value="earn">Earn</option>
+            <option value="redeem">Redeem</option>
+            <option value="manual">Manual</option>
+          </select>
+          <select name="branchId" defaultValue={params.branchId ?? ""} className="rounded-md border border-line bg-cream px-3 py-2 text-sm">
+            <option value="">All branches</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>{branch.name}</option>
+            ))}
+          </select>
+          <input name="customerId" defaultValue={params.customerId ?? ""} placeholder="Customer ID" className="rounded-md border border-line bg-cream px-3 py-2 text-sm" />
+          <input name="from" type="date" defaultValue={params.from ?? ""} className="rounded-md border border-line bg-cream px-3 py-2 text-sm" />
+          <button className="rounded-md bg-matcha-deep px-4 py-2 text-sm font-medium text-cream">Filter</button>
+        </form>
         <DataTable
           headers={["When", "Member", "Staff", "Branch", "Type", "Bill", "Leaves"]}
-          rows={transactions.map((transaction) => {
-            const customer = customers.find((item) => item.id === transaction.customerId);
+          rows={transactions.map(({ transaction, customerName, staffName, branchName, rewardName }) => {
             return [
               <span key={`${transaction.id}-when`} className="text-sm text-charcoal">
                 {formatDate(transaction.createdAt)}
               </span>,
               <span key={`${transaction.id}-member`} className="font-medium text-charcoal">
-                {customer?.name ?? "Unknown"}
+                {customerName}
               </span>,
               <span key={`${transaction.id}-staff`} className="text-sm text-ink-muted">
-                {getStaff(transaction.staffId)?.name ?? "Unknown"}
+                {staffName}
               </span>,
               <span key={`${transaction.id}-branch`} className="text-sm text-ink-muted">
-                {getBranch(transaction.branchId)?.name ?? "Manager"}
+                {branchName ?? "Manager"}
               </span>,
               <span key={`${transaction.id}-type`} className="text-sm text-ink-muted">
-                {transaction.rewardId
-                  ? getReward(transaction.rewardId)?.name ?? transaction.type
-                  : transaction.type}
+                {rewardName ?? transaction.type}
               </span>,
               <span key={`${transaction.id}-bill`} className="counter text-sm text-ink-muted">
-                {transaction.billTotal ? formatPeso(transaction.billTotal) : "—"}
+                {transaction.billTotalCents ? formatPeso(transaction.billTotalCents / 100) : "-"}
               </span>,
               <span
                 key={`${transaction.id}-points`}

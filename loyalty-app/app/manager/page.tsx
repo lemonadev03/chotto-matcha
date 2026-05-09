@@ -3,10 +3,18 @@ import { ManagerShell } from "@/components/manager/manager-shell";
 import { DataTable } from "@/components/shared/table";
 import { SectionTitle } from "@/components/shared/section-title";
 import { StatCard } from "@/components/shared/stat-card";
-import { branches, dashboardStats, getBranch, transactions } from "@/lib/mock-data";
+import { listBranches } from "@/lib/data/branches";
+import { getManagerDashboardStats } from "@/lib/data/dashboard";
+import { listTransactionsWithLabels } from "@/lib/data/manager";
 import { formatDate, formatPoints } from "@/lib/formatters";
 
-export default function ManagerPage() {
+export default async function ManagerPage() {
+  const [dashboardStats, branchRows, transactionRows] = await Promise.all([
+    getManagerDashboardStats(),
+    listBranches(),
+    listTransactionsWithLabels({}, 10)
+  ]);
+
   return (
     <ManagerShell>
       <div className="space-y-7">
@@ -30,11 +38,11 @@ export default function ManagerPage() {
             value={formatPoints(dashboardStats.pointsRedeemedAllTime)}
             detail="All-time spent"
           />
-          <StatCard
-            label="Branches"
-            value={String(branches.length)}
-            detail="Pouring today"
-          />
+            <StatCard
+              label="Branches"
+            value={String(branchRows.length)}
+              detail="Pouring today"
+            />
         </div>
 
         <section>
@@ -43,13 +51,13 @@ export default function ManagerPage() {
           </h2>
           <DataTable
             headers={["When", "Branch", "Type", "Leaves"]}
-            rows={transactions.map((transaction) => [
+            rows={transactionRows.map(({ transaction, branchName }) => [
               <span key={`${transaction.id}-when`} className="text-sm text-charcoal">
                 {formatDate(transaction.createdAt)}
               </span>,
               <span key={`${transaction.id}-branch`} className="inline-flex items-center gap-2 text-sm text-charcoal">
                 <Users className="h-3.5 w-3.5 text-ink-muted" strokeWidth={1.5} aria-hidden="true" />
-                {getBranch(transaction.branchId)?.name ?? "Manager"}
+                {branchName ?? "Manager"}
               </span>,
               <span key={`${transaction.id}-type`} className="capitalize text-sm text-ink-muted">
                 {transaction.type}

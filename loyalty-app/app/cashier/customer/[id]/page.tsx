@@ -3,21 +3,21 @@ import { Button } from "@/components/shared/button";
 import { Eyebrow } from "@/components/shared/eyebrow";
 import { CashierShell } from "@/components/cashier/cashier-shell";
 import { TierBadge } from "@/components/customer/tier-badge";
-import { customers, getCustomer } from "@/lib/mock-data";
+import { requireCashierShiftSession } from "@/lib/auth/session";
+import { getCustomerById } from "@/lib/data/customers";
 import { formatPoints } from "@/lib/formatters";
 import { getTier } from "@/lib/loyalty";
-
-export function generateStaticParams() {
-  return customers.map((customer) => ({ id: customer.id }));
-}
+import { notFound } from "next/navigation";
 
 export default async function CashierCustomerPage({ params }: { params: Promise<{ id: string }> }) {
+  const { profile, branch } = await requireCashierShiftSession();
   const { id } = await params;
-  const customer = getCustomer(id);
+  const customer = await getCustomerById(id);
+  if (!customer?.active) notFound();
   const tier = getTier(customer.pointsBalance);
 
   return (
-    <CashierShell>
+    <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
       <section className="rounded-lg border border-line-soft bg-cream p-7">
         <Eyebrow className="text-matcha-deep">Member found</Eyebrow>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
@@ -42,10 +42,10 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <Button href="/cashier/award" icon={PlusCircle}>
+          <Button href={`/cashier/award?customerId=${customer.id}`} icon={PlusCircle}>
             Award leaves
           </Button>
-          <Button href="/cashier/redeem" variant="secondary" icon={Gift}>
+          <Button href={`/cashier/redeem?customerId=${customer.id}`} variant="secondary" icon={Gift}>
             Redeem reward
           </Button>
         </div>

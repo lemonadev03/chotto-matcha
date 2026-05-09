@@ -1,6 +1,9 @@
 import { ArrowDownRight, ArrowUpRight, Leaf } from "lucide-react";
 import { CustomerShell } from "@/components/customer/customer-shell";
-import { getBranch, getCustomer, getCustomerTransactions, getReward } from "@/lib/mock-data";
+import { requireCustomerSession } from "@/lib/auth/session";
+import { listBranches } from "@/lib/data/branches";
+import { getCustomerRecentTransactions } from "@/lib/data/customers";
+import { listRewards } from "@/lib/data/rewards";
 import { formatDate, formatPoints } from "@/lib/formatters";
 
 const typeMeta = {
@@ -9,9 +12,15 @@ const typeMeta = {
   manual: { label: "Adjustment", tone: "manual" }
 } as const;
 
-export default function CustomerActivityPage() {
-  const customer = getCustomer();
-  const activity = getCustomerTransactions(customer.id);
+export default async function CustomerActivityPage() {
+  const { customer } = await requireCustomerSession();
+  const [activity, branches, rewards] = await Promise.all([
+    getCustomerRecentTransactions(customer.id, 100),
+    listBranches(),
+    listRewards()
+  ]);
+  const branchById = new Map(branches.map((branch) => [branch.id, branch]));
+  const rewardById = new Map(rewards.map((reward) => [reward.id, reward]));
 
   const earned = activity
     .filter((transaction) => transaction.pointsDelta > 0)
@@ -50,9 +59,9 @@ export default function CustomerActivityPage() {
           const meta = typeMeta[transaction.type] ?? typeMeta.manual;
           const label =
             transaction.type === "redeem"
-              ? getReward(transaction.rewardId ?? "")?.name ?? "Reward redeemed"
+              ? rewardById.get(transaction.rewardId ?? "")?.name ?? "Reward redeemed"
               : transaction.type === "earn"
-                ? getBranch(transaction.branchId)?.name ?? "Visit"
+                ? branchById.get(transaction.branchId ?? "")?.name ?? "Visit"
                 : transaction.reason ?? "Manual adjustment";
           return (
             <li

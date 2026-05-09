@@ -1,34 +1,46 @@
 import { ManagerShell } from "@/components/manager/manager-shell";
 import { SectionTitle } from "@/components/shared/section-title";
-import { orgConfig } from "@/lib/mock-data";
+import { Button } from "@/components/shared/button";
+import { updateSettings } from "@/app/manager/actions";
+import { getOrgDisplayConfig } from "@/lib/data/org-config";
 
-export default function ManagerSettingsPage() {
+export default async function ManagerSettingsPage() {
+  const orgConfig = await getOrgDisplayConfig();
+
   return (
     <ManagerShell>
       <div className="space-y-7">
         <SectionTitle eyebrow="Configuration" title="Settings" />
-        <section className="rounded-lg border border-line-soft bg-cream p-7">
+        <form action={updateSettings} className="rounded-lg border border-line-soft bg-cream p-7">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-md border border-line-soft bg-stone/40 p-5">
               <p className="eyebrow text-ink-muted">Earn rate</p>
-              <p className="counter mt-3 font-display text-[40px] font-medium leading-none text-charcoal">
-                {orgConfig.earnRate}:1
-              </p>
+              <input
+                name="earnRate"
+                type="number"
+                min="0.01"
+                step="0.01"
+                defaultValue={orgConfig.earnRate}
+                className="counter mt-3 w-full rounded-md border border-line bg-cream px-4 py-3 font-display text-[32px] font-medium leading-none text-charcoal"
+              />
               <p className="mt-3 text-sm leading-5 text-ink-muted">
                 One leaf earned for every peso a member spends.
               </p>
             </div>
             <div className="rounded-md border border-line-soft bg-stone/40 p-5">
-              <p className="eyebrow text-ink-muted">Storage</p>
-              <p className="mt-3 font-display text-[20px] font-medium leading-7 text-charcoal">
-                Object bucket planned
-              </p>
+              <p className="eyebrow text-ink-muted">Display name</p>
+              <input
+                name="orgName"
+                defaultValue={orgConfig.orgName}
+                className="mt-3 w-full rounded-md border border-line bg-cream px-4 py-3 text-base text-charcoal"
+              />
               <p className="mt-3 text-sm leading-5 text-ink-muted">
-                Reward images and the org logo live outside Postgres.
+                Logo upload remains out of scope. Current logo asset: {orgConfig.logoAssetId ?? "none"}.
               </p>
             </div>
           </div>
-        </section>
+          <Button type="submit" className="mt-5">Save settings</Button>
+        </form>
       </div>
     </ManagerShell>
   );

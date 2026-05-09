@@ -10,7 +10,7 @@ export function formatPeso(amount: number) {
   }).format(amount);
 }
 
-export function formatDate(value: string) {
+export function formatDate(value: string | Date) {
   return new Intl.DateTimeFormat("en-PH", {
     month: "short",
     day: "numeric",

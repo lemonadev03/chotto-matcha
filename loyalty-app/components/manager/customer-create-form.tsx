@@ -1,0 +1,33 @@
+"use client";
+
+import { useActionState } from "react";
+import { KeyRound } from "lucide-react";
+import { createCustomerAccount, type CreateAccountState } from "@/app/manager/actions";
+import { Button } from "@/components/shared/button";
+import { Input } from "@/components/shared/input";
+import { Pill } from "@/components/shared/pill";
+
+const initialState: CreateAccountState = {};
+
+export function CustomerCreateForm() {
+  const [state, formAction, pending] = useActionState(createCustomerAccount, initialState);
+
+  return (
+    <form action={formAction} className="grid gap-4">
+      <Input label="Name" name="name" required />
+      <Input label="Email" name="email" type="email" required />
+      <Input label="Phone" name="phone" type="tel" required />
+      {state.error ? <p className="text-sm text-error-text">{state.error}</p> : null}
+      {state.temporaryPassword ? (
+        <div className="rounded-md border border-sage-tint bg-sage-wash p-4">
+          <Pill icon={KeyRound}>Temporary password</Pill>
+          <p className="mt-3 font-mono text-sm text-charcoal">{state.temporaryPassword}</p>
+          <p className="mt-2 text-xs text-ink-muted">{state.email} can sign in with this password.</p>
+        </div>
+      ) : null}
+      <Button type="submit" disabled={pending}>
+        {pending ? "Creating..." : "Create customer account"}
+      </Button>
+    </form>
+  );
+}
