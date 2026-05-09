@@ -1,6 +1,6 @@
 "use server";
 
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db/client";
@@ -20,16 +20,17 @@ export async function signUpCustomer(_: SignupState, formData: FormData): Promis
   const name = text(formData, "name");
   const email = text(formData, "email").toLowerCase();
   const phone = text(formData, "phone");
+  const password = text(formData, "password");
   let emailFailed = false;
 
   try {
-    if (!name || !email || !phone) throw new Error("All fields are required");
+    if (!name || !email || !phone || !password) throw new Error("All fields are required");
+    if (password.length < 8) throw new Error("Password must be at least 8 characters");
     const existingCustomer = await db.query.customers.findFirst({
       where: eq(customers.email, email)
     });
     if (existingCustomer) throw new Error("A customer with this email already exists");
 
-    const password = `Chotto-${randomBytes(5).toString("base64url")}-1`;
     await auth.api.signUpEmail({ body: { email, password, name } });
     const authUser = await db.query.user.findFirst({ where: eq(user.email, email) });
     if (!authUser) throw new Error("Auth user was not created");

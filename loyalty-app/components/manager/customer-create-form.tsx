@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Mail } from "lucide-react";
+import { KeyRound, Mail } from "lucide-react";
 import { createCustomerAccount, type CreateAccountState } from "@/app/manager/actions";
 import { Button } from "@/components/shared/button";
 import { Input } from "@/components/shared/input";
@@ -18,6 +18,13 @@ export function CustomerCreateForm() {
       <Input label="Email" name="email" type="email" required />
       <Input label="Phone" name="phone" type="tel" required />
       {state.error ? <p className="text-sm text-error-text">{state.error}</p> : null}
+      {state.temporaryPassword ? (
+        <div className="rounded-md border border-sage-tint bg-sage-wash p-4">
+          <Pill icon={KeyRound}>Temporary password</Pill>
+          <p className="mt-3 font-mono text-sm text-charcoal">{state.temporaryPassword}</p>
+          <p className="mt-2 text-xs text-ink-muted">{state.email} can sign in with this password.</p>
+        </div>
+      ) : null}
       {state.invitationSent ? (
         <div className="rounded-md border border-sage-tint bg-sage-wash p-4">
           <Pill icon={Mail}>Invitation email sent</Pill>

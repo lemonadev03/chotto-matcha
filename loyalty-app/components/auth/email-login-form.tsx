@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth/client";
 import { Button } from "@/components/shared/button";
 import { Input } from "@/components/shared/input";
@@ -14,24 +15,46 @@ export function EmailLoginForm({
   placeholder?: string;
   role?: "customer" | "cashier" | "manager";
 }) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+  const [passwordPending, setPasswordPending] = useState(false);
+  const [linkPending, setLinkPending] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setSentTo(null);
-    setPending(true);
     const normalizedEmail = email.trim().toLowerCase();
+    setPasswordPending(true);
+    const result = await signIn.email({ email: normalizedEmail, password, callbackURL });
+    setPasswordPending(false);
+    if (result.error) {
+      setError(result.error.message ?? "Sign in failed");
+      return;
+    }
+    router.push(callbackURL);
+    router.refresh();
+  }
+
+  async function sendMagicLink() {
+    setError(null);
+    setSentTo(null);
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setError("Enter your email first");
+      return;
+    }
+    setLinkPending(true);
     const result = await signIn.magicLink({
       email: normalizedEmail,
       callbackURL,
       errorCallbackURL: callbackURL,
       metadata: { intent: "login", role }
     });
-    setPending(false);
+    setLinkPending(false);
     if (result.error) {
       setError(result.error.message ?? "Could not send sign-in link");
       return;
@@ -50,14 +73,31 @@ export function EmailLoginForm({
         onChange={(e) => setEmail(e.target.value)}
         placeholder={placeholder}
       />
+      <Input
+        label="Password"
+        type="password"
+        autoComplete="current-password"
+        required
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
       {error ? <p className="text-sm text-error-text">{error}</p> : null}
       {sentTo ? (
         <p className="rounded-md border border-sage-tint bg-sage-wash p-3 text-sm leading-6 text-matcha-deep">
           Check {sentTo} for a secure sign-in link.
         </p>
       ) : null}
-      <Button type="submit" disabled={pending} className="mt-2 w-full">
-        {pending ? "Sending..." : "Send sign-in link"}
+      <Button type="submit" disabled={passwordPending || linkPending} className="mt-2 w-full">
+        {passwordPending ? "Just a moment..." : "Sign in"}
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        disabled={passwordPending || linkPending}
+        className="w-full"
+        onClick={sendMagicLink}
+      >
+        {linkPending ? "Sending..." : "Email me a sign-in link"}
       </Button>
     </form>
   );

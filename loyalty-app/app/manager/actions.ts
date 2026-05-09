@@ -25,6 +25,7 @@ import { deleteAssetObject, putAssetObject } from "@/lib/storage";
 
 export type CreateAccountState = {
   error?: string;
+  temporaryPassword?: string;
   invitationSent?: boolean;
   invitationFailed?: boolean;
   email?: string;
@@ -299,7 +300,7 @@ export async function createStaffAccount(_: CreateAccountState, formData: FormDa
       invitationFailed = true;
     }
     revalidatePath("/manager/staff");
-    return { invitationSent: !invitationFailed, invitationFailed, email, name };
+    return { temporaryPassword: password, invitationSent: !invitationFailed, invitationFailed, email, name };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Could not create staff account" };
   }
@@ -403,7 +404,7 @@ export async function createCustomerAccount(_: CreateAccountState, formData: For
       invitationFailed = true;
     }
     revalidatePath("/manager/customers");
-    return { invitationSent: !invitationFailed, invitationFailed, email, name };
+    return { temporaryPassword: password, invitationSent: !invitationFailed, invitationFailed, email, name };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Could not create customer account" };
   }
