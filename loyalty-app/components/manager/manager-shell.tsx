@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BarChart3, Building2, Gift, ReceiptText, Settings, UsersRound } from "lucide-react";
 import { Brand } from "@/components/shared/brand";
+import { requireManagerSession } from "@/lib/auth/session";
 
 const nav = [
   { href: "/manager", label: "Dashboard", icon: BarChart3 },
@@ -12,14 +13,26 @@ const nav = [
   { href: "/manager/settings", label: "Settings", icon: Settings }
 ];
 
-export function ManagerShell({ children }: { children: React.ReactNode }) {
+export async function ManagerShell({ children }: { children: React.ReactNode }) {
+  const { user } = await requireManagerSession();
+
   return (
     <main className="grain min-h-screen px-5 py-5">
       <div className="relative mx-auto max-w-7xl">
         <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <Brand href="/manager" />
-          <div className="rounded-full border border-moss/15 bg-white/70 px-4 py-2 text-sm font-bold text-moss">
-            Manager / Aya Santos
+          <div className="flex items-center gap-3">
+            <div className="rounded-full border border-moss/15 bg-white/70 px-4 py-2 text-sm font-bold text-moss">
+              Manager / {user.name}
+            </div>
+            <form action="/manager/logout" method="post">
+              <button
+                type="submit"
+                className="rounded-full border border-moss/15 bg-white/70 px-4 py-2 text-sm font-bold text-moss hover:bg-moss/5"
+              >
+                Sign out
+              </button>
+            </form>
           </div>
         </header>
         <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
