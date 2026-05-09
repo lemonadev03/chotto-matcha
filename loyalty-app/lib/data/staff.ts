@@ -1,8 +1,8 @@
 import "server-only";
 
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db/client";
-import { staffProfiles, staffRoleDetails } from "@/db/schema";
+import { branches, staffProfiles, staffRoleDetails, userRoles } from "@/db/schema";
 
 export async function listStaffProfiles() {
   return db.query.staffProfiles.findMany({ orderBy: [asc(staffProfiles.name)] });
@@ -33,4 +33,27 @@ export async function listCashiersForBranch(branchId: string) {
       )
     )
     .orderBy(asc(staffProfiles.name));
+}
+
+export async function listActiveCashiersWithBranches() {
+  return db
+    .select({
+      profile: staffProfiles,
+      detail: staffRoleDetails,
+      branch: branches
+    })
+    .from(staffProfiles)
+    .innerJoin(staffRoleDetails, eq(staffProfiles.id, staffRoleDetails.staffProfileId))
+    .innerJoin(userRoles, eq(staffProfiles.authUserId, userRoles.authUserId))
+    .innerJoin(branches, eq(staffRoleDetails.branchId, branches.id))
+    .where(
+      and(
+        eq(staffProfiles.active, true),
+        eq(userRoles.role, "cashier"),
+        eq(staffRoleDetails.role, "cashier"),
+        eq(branches.active, true),
+        isNotNull(staffRoleDetails.pinHash)
+      )
+    )
+    .orderBy(asc(branches.name), asc(staffProfiles.name));
 }

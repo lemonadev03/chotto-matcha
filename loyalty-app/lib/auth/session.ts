@@ -69,10 +69,22 @@ export async function requireCashierSession() {
 }
 
 export async function requireCashierShiftSession() {
-  const cashier = await requireCashierSession();
   const shift = await getCashierShiftCookie();
   if (!shift) redirect("/cashier");
-  if (shift.staffProfileId !== cashier.profile.id || shift.branchId !== cashier.roleDetail.branchId) {
+
+  const profile = await db.query.staffProfiles.findFirst({
+    where: and(eq(staffProfiles.id, shift.staffProfileId), eq(staffProfiles.active, true))
+  });
+  if (!profile) redirect("/cashier/access-denied");
+
+  const roleDetail = await db.query.staffRoleDetails.findFirst({
+    where: and(
+      eq(staffRoleDetails.staffProfileId, profile.id),
+      eq(staffRoleDetails.role, "cashier"),
+      eq(staffRoleDetails.branchId, shift.branchId)
+    )
+  });
+  if (!roleDetail) {
     redirect("/cashier/access-denied");
   }
 
@@ -81,5 +93,5 @@ export async function requireCashierShiftSession() {
   });
   if (!branch) redirect("/cashier/access-denied");
 
-  return { ...cashier, shift, branch };
+  return { user: null, profile, roleDetail, shift, branch };
 }

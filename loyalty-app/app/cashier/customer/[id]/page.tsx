@@ -1,4 +1,4 @@
-import { Gift, Leaf, PlusCircle } from "lucide-react";
+import { ArrowLeft, Gift, Leaf, PlusCircle } from "lucide-react";
 import { Button } from "@/components/shared/button";
 import { Eyebrow } from "@/components/shared/eyebrow";
 import { CashierShell } from "@/components/cashier/cashier-shell";
@@ -18,6 +18,11 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
 
   return (
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
+      <div className="mb-4">
+        <Button href="/cashier/identify" variant="tertiary" icon={ArrowLeft}>
+          Back to lookup
+        </Button>
+      </div>
       <section className="rounded-lg border border-line-soft bg-cream p-7">
         <Eyebrow className="text-matcha-deep">Member found</Eyebrow>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-3">

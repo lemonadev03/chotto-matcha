@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
-import { ScanLine, UsersRound } from "lucide-react";
+import { ScanLine, UserRoundCheck } from "lucide-react";
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 
@@ -14,7 +14,7 @@ type NavItem = {
 };
 
 const items: NavItem[] = [
-  { href: "/cashier", label: "Roster", icon: UsersRound },
+  { href: "/cashier", label: "Shift", icon: UserRoundCheck },
   { href: "/cashier/identify", label: "Identify", icon: ScanLine }
 ];
 

@@ -28,7 +28,7 @@ export function CashierShell({
             </form>
             <form action="/cashier/logout" method="post">
               <button className="inline-flex min-h-tap items-center rounded-pill border border-line bg-cream px-4 text-sm font-medium text-charcoal transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:text-matcha-deep">
-                Sign out
+                Reset device
               </button>
             </form>
           </div>

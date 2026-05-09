@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Camera, Search } from "lucide-react";
+import { ArrowLeft, Camera, Search } from "lucide-react";
+import { Button } from "@/components/shared/button";
 import { CashierShell } from "@/components/cashier/cashier-shell";
 import { Eyebrow } from "@/components/shared/eyebrow";
 import { requireCashierShiftSession } from "@/lib/auth/session";
@@ -12,6 +13,11 @@ export default async function CashierIdentifyPage() {
 
   return (
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
+      <div className="mb-4">
+        <Button href="/cashier" variant="tertiary" icon={ArrowLeft}>
+          Back to shift
+        </Button>
+      </div>
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <section className="grid min-h-[420px] place-items-center rounded-lg border border-line-soft bg-cream p-8 text-center shadow-sm">
           <div>

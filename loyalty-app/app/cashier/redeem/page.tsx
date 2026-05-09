@@ -1,4 +1,4 @@
-import { CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/shared/button";
 import { Eyebrow } from "@/components/shared/eyebrow";
@@ -24,6 +24,11 @@ export default async function CashierRedeemPage({
 
   return (
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
+      <div className="mb-4">
+        <Button href={`/cashier/customer/${customer.id}`} variant="tertiary" icon={ArrowLeft}>
+          Back to member
+        </Button>
+      </div>
       <section className="rounded-lg border border-line-soft bg-cream p-7">
         <Eyebrow className="text-matcha-deep">Redeem reward</Eyebrow>
         <h1 className="mt-3 font-display text-[40px] font-medium leading-[44px] text-charcoal">
@@ -68,6 +73,9 @@ export default async function CashierRedeemPage({
 
           <Button type="submit" icon={CheckCircle2} className="mt-3">
             Confirm reward
+          </Button>
+          <Button href={`/cashier/customer/${customer.id}`} variant="secondary">
+            Back
           </Button>
         </form>
       </section>

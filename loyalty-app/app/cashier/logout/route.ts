@@ -6,5 +6,5 @@ import { clearCashierShiftCookie } from "@/lib/auth/shift";
 export async function POST(request: Request) {
   await clearCashierShiftCookie();
   await auth.api.signOut({ headers: await headers() });
-  return NextResponse.redirect(new URL("/cashier/login", request.url), { status: 303 });
+  return NextResponse.redirect(new URL("/cashier", request.url), { status: 303 });
 }

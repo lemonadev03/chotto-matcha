@@ -4,10 +4,10 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db/client";
-import { branches, staffRoleDetails } from "@/db/schema";
+import { branches, staffProfiles, staffRoleDetails } from "@/db/schema";
 import { hashDemoPin } from "@/lib/auth/pin";
 import { clearCashierShiftCookie, setCashierShiftCookie } from "@/lib/auth/shift";
-import { requireCashierSession, requireCashierShiftSession } from "@/lib/auth/session";
+import { requireCashierShiftSession } from "@/lib/auth/session";
 import { awardPoints, redeemReward } from "@/lib/data/transactions";
 
 function text(formData: FormData, key: string) {
@@ -21,19 +21,27 @@ function nonEmpty(formData: FormData, key: string) {
 }
 
 export async function startCashierShift(formData: FormData) {
-  const { profile, roleDetail } = await requireCashierSession();
+  const staffProfileId = nonEmpty(formData, "staffProfileId");
   const pin = nonEmpty(formData, "pin");
-  if (!roleDetail.branchId) redirect("/cashier/access-denied");
 
-  const detail = await db.query.staffRoleDetails.findFirst({
-    where: and(
-      eq(staffRoleDetails.staffProfileId, profile.id),
-      eq(staffRoleDetails.role, "cashier"),
-      eq(staffRoleDetails.branchId, roleDetail.branchId)
-    )
-  });
+  const [profile, detail] = await Promise.all([
+    db.query.staffProfiles.findFirst({
+      where: and(eq(staffProfiles.id, staffProfileId), eq(staffProfiles.active, true))
+    }),
+    db.query.staffRoleDetails.findFirst({
+      where: and(
+        eq(staffRoleDetails.staffProfileId, staffProfileId),
+        eq(staffRoleDetails.role, "cashier")
+      )
+    })
+  ]);
+  if (!profile || !detail?.branchId) redirect("/cashier?pin=invalid");
+
   const branch = await db.query.branches.findFirst({
-    where: and(eq(branches.id, roleDetail.branchId), eq(branches.active, true))
+    where: and(
+      eq(branches.id, detail.branchId),
+      eq(branches.active, true)
+    )
   });
   if (!detail?.pinHash || detail.pinHash !== hashDemoPin(pin) || !branch) {
     redirect("/cashier?pin=invalid");
@@ -41,7 +49,7 @@ export async function startCashierShift(formData: FormData) {
 
   await setCashierShiftCookie({
     staffProfileId: profile.id,
-    branchId: roleDetail.branchId,
+    branchId: detail.branchId,
     issuedAt: Date.now()
   });
   revalidatePath("/cashier");
@@ -56,7 +64,9 @@ export async function endCashierShift() {
 export async function awardCustomerPoints(formData: FormData) {
   const { profile, branch } = await requireCashierShiftSession();
   const customerId = nonEmpty(formData, "customerId");
-  const billTotalCents = Math.round(Number(nonEmpty(formData, "billTotal")) * 100);
+  const billTotal = Number(nonEmpty(formData, "billTotal"));
+  if (!Number.isFinite(billTotal) || billTotal <= 0) redirect(`/cashier/award?customerId=${customerId}&bill=invalid`);
+  const billTotalCents = Math.round(billTotal * 100);
   await awardPoints({ customerId, staffProfileId: profile.id, branchId: branch.id, billTotalCents });
   revalidatePath(`/cashier/customer/${customerId}`);
   redirect(`/cashier/customer/${customerId}`);
