@@ -30,7 +30,7 @@ export default async function CashierRedeemPage({
           {customer.name}
         </h1>
         <p className="mt-2 text-sm leading-6 text-ink-muted">
-          {formatPoints(customer.pointsBalance)} leaves available.
+          {formatPoints(customer.pointsBalance)} points available.
         </p>
 
         <form action={redeemCustomerReward} className="mt-6 grid gap-3">
@@ -54,7 +54,7 @@ export default async function CashierRedeemPage({
                   <div>
                     <p className="font-medium text-charcoal">{reward.name}</p>
                     <p className="counter mt-0.5 text-xs text-ink-muted">
-                      {formatPoints(reward.pointCost)} leaves ·{" "}
+                      {formatPoints(reward.pointCost)} points ·{" "}
                       {reward.stockCount === null ? "Always available" : `${reward.stockCount} left`}
                     </p>
                   </div>

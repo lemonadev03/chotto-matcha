@@ -5,14 +5,42 @@ import { requireCustomerSession } from "@/lib/auth/session";
 import { formatPoints } from "@/lib/formatters";
 import { getTier } from "@/lib/loyalty";
 
-const qrCells = Array.from(
-  { length: 121 },
-  (_, index) => index % 2 === 0 || index % 7 === 0 || [3, 9, 30, 58, 93].includes(index)
-);
+const SIZE = 25;
+
+function isFinder(x: number, y: number) {
+  const inTopLeft = x < 7 && y < 7;
+  const inTopRight = x >= SIZE - 7 && y < 7;
+  const inBottomLeft = x < 7 && y >= SIZE - 7;
+  if (!inTopLeft && !inTopRight && !inBottomLeft) return null;
+  const lx = inTopRight ? x - (SIZE - 7) : x;
+  const ly = inBottomLeft ? y - (SIZE - 7) : y;
+  const ringX = inTopRight ? lx : lx;
+  const ringY = inBottomLeft ? ly : ly;
+  const onOuter = ringX === 0 || ringX === 6 || ringY === 0 || ringY === 6;
+  const inInner = ringX >= 2 && ringX <= 4 && ringY >= 2 && ringY <= 4;
+  return onOuter || inInner;
+}
+
+function buildPattern(seed: string) {
+  const cells: boolean[] = [];
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      const finder = isFinder(x, y);
+      if (finder !== null) {
+        cells.push(finder);
+        continue;
+      }
+      const c = seed.charCodeAt((x * 31 + y * 17) % seed.length);
+      cells.push(((c + x * y) & 1) === 1);
+    }
+  }
+  return cells;
+}
 
 export default async function CustomerQrPage() {
   const { customer } = await requireCustomerSession();
   const tier = getTier(customer.pointsBalance);
+  const cells = buildPattern(customer.id);
 
   return (
     <CustomerShell>
@@ -22,20 +50,25 @@ export default async function CustomerQrPage() {
           Show this at the bar
         </h1>
         <p className="mt-2 text-sm leading-5 text-ink-muted">
-          Just a moment — the barista taps your code to add today&apos;s leaves.
+          Just a moment — the barista taps your code to add today&apos;s points.
         </p>
       </section>
 
       <div className="mt-7 rounded-xl bg-matcha-deep p-6 text-center text-cream shadow-md">
         <div className="mx-auto inline-flex items-center gap-2 rounded-pill bg-cream/15 px-3 py-1 text-xs font-medium text-cream">
-          <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
-          {customer.name.split(" ")[0]} · {formatPoints(customer.pointsBalance)} leaves
+          <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+          {customer.name.split(" ")[0]} · {formatPoints(customer.pointsBalance)} points
         </div>
-        <div className="mx-auto mt-5 grid h-64 w-64 grid-cols-11 gap-1 rounded-lg bg-cream p-3">
-          {qrCells.map((filled, index) => (
+        <div
+          className="mx-auto mt-5 grid aspect-square w-full max-w-[18rem] gap-px rounded-lg bg-cream p-4"
+          style={{ gridTemplateColumns: `repeat(${SIZE}, minmax(0, 1fr))` }}
+          aria-label="QR placeholder"
+          role="img"
+        >
+          {cells.map((filled, index) => (
             <span
               key={index}
-              className={filled ? "rounded-[2px] bg-charcoal" : "rounded-[2px] bg-cream"}
+              className={filled ? "bg-charcoal" : "bg-cream"}
             />
           ))}
         </div>

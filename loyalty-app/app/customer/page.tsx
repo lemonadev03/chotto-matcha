@@ -1,16 +1,14 @@
 import Link from "next/link";
-import { ArrowUpRight, Gift, QrCode } from "lucide-react";
-import { Button } from "@/components/shared/button";
+import { ArrowDownRight, ArrowUpRight, Gift, QrCode } from "lucide-react";
 import { CustomerShell } from "@/components/customer/customer-shell";
 import { PointsBalanceCard } from "@/components/customer/points-balance-card";
-import { TierBadge } from "@/components/customer/tier-badge";
 import { RewardCard } from "@/components/customer/reward-card";
 import { requireCustomerSession } from "@/lib/auth/session";
 import { listBranches } from "@/lib/data/branches";
 import { getCustomerRecentTransactions } from "@/lib/data/customers";
 import { listActiveRewards } from "@/lib/data/rewards";
 import { formatDate, formatPoints } from "@/lib/formatters";
-import { getNextTier, getTier, leavesToNextTier, tierProgress } from "@/lib/loyalty";
+import { getNextTier, getTier, pointsToNextTier, tierProgress } from "@/lib/loyalty";
 
 export default async function CustomerHome() {
   const { customer } = await requireCustomerSession();
@@ -24,36 +22,40 @@ export default async function CustomerHome() {
   const firstName = customer.name.split(" ")[0];
   const tier = getTier(customer.pointsBalance);
   const nextTier = getNextTier(customer.pointsBalance);
-  const leavesToNext = leavesToNextTier(customer.pointsBalance);
+  const pointsToNext = pointsToNextTier(customer.pointsBalance);
   const progress = tierProgress(customer.pointsBalance);
   const featured = rewards.slice(0, 2);
 
   return (
     <CustomerShell>
-      <section className="mb-7">
-        <p className="text-base text-ink-muted">Welcome back,</p>
-        <h1 className="mt-1 font-display text-[40px] font-medium leading-[44px] text-charcoal">
-          {firstName}.
-        </h1>
-        <div className="mt-3">
-          <TierBadge tier={tier} />
-        </div>
-      </section>
-
       <PointsBalanceCard
-        leaves={customer.pointsBalance}
+        points={customer.pointsBalance}
         tier={tier}
         nextTier={nextTier}
-        leavesToNext={leavesToNext}
+        pointsToNext={pointsToNext}
         progress={progress}
+        greeting={<>Hi, {firstName}</>}
+        actions={
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              href="/customer/qr"
+              className="inline-flex min-h-tap items-center justify-center gap-2 rounded-pill bg-cream px-4 text-sm font-medium text-matcha-deep shadow-sm transition-colors duration-fast ease-out-soft hover:bg-sage-wash"
+            >
+              <QrCode className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+              Show QR
+            </Link>
+            <Link
+              href="/customer/rewards"
+              className="inline-flex min-h-tap items-center justify-center gap-2 rounded-pill border border-cream/30 px-4 text-sm font-medium text-cream transition-colors duration-fast ease-out-soft hover:bg-cream/10"
+            >
+              <Gift className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+              Rewards
+            </Link>
+          </div>
+        }
       />
 
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        <Button href="/customer/qr" icon={QrCode}>Show QR</Button>
-        <Button href="/customer/rewards" variant="secondary" icon={Gift}>Rewards</Button>
-      </div>
-
-      <section className="mt-9">
+      <section className="mt-8">
         <header className="mb-3 flex items-end justify-between">
           <div>
             <p className="eyebrow text-matcha-deep">Today&apos;s moment</p>
@@ -75,16 +77,16 @@ export default async function CustomerHome() {
         </div>
       </section>
 
-      <section className="mt-9">
+      <section className="mt-8">
         <header className="mb-3 flex items-end justify-between">
           <h2 className="font-display text-[24px] font-medium leading-[30px] text-charcoal">
-            Recent moments
+            Recent activity
           </h2>
           <Link
             href="/customer/activity"
             className="text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
           >
-            Open journal
+            View all
           </Link>
         </header>
         <ul className="grid gap-2">
@@ -97,7 +99,7 @@ export default async function CustomerHome() {
             return (
               <li
                 key={transaction.id}
-                className="flex items-center justify-between rounded-md border border-line-soft bg-cream px-4 py-3"
+                className="flex items-center justify-between gap-3 rounded-md border border-line-soft bg-cream px-4 py-3"
               >
                 <div className="min-w-0">
                   <p className="truncate font-medium text-charcoal">{label}</p>
@@ -108,17 +110,17 @@ export default async function CustomerHome() {
                 <span
                   className={
                     earned
-                      ? "counter ml-3 inline-flex items-center gap-1 rounded-pill bg-sage-wash px-2.5 py-1 text-xs font-medium text-matcha-deep"
-                      : "counter ml-3 inline-flex items-center gap-1 rounded-pill bg-stone px-2.5 py-1 text-xs font-medium text-ink-muted"
+                      ? "counter inline-flex shrink-0 items-center gap-1 text-sm font-medium text-matcha-deep"
+                      : "counter inline-flex shrink-0 items-center gap-1 text-sm font-medium text-error-text"
                   }
                 >
+                  {earned ? (
+                    <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  ) : (
+                    <ArrowDownRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  )}
                   {earned ? "+" : ""}
                   {formatPoints(transaction.pointsDelta)}
-                  <ArrowUpRight
-                    className={earned ? "h-3 w-3" : "h-3 w-3 rotate-90"}
-                    strokeWidth={1.5}
-                    aria-hidden="true"
-                  />
                 </span>
               </li>
             );

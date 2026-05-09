@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { nextCookies } from "better-auth/next-js";
 import { db, schema } from "@/db/client";
 
 export const auth = betterAuth({
@@ -17,7 +18,8 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: false
-  }
+  },
+  plugins: [nextCookies()]
 });
 
 export type Auth = typeof auth;

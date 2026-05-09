@@ -9,14 +9,14 @@ const surfaces = [
     icon: Coffee,
     eyebrow: "Member",
     title: "Customer app",
-    detail: "Show your code, watch leaves grow, redeem quietly."
+    detail: "Show your code, watch points grow, redeem quietly."
   },
   {
     href: "/cashier",
     icon: BadgeCheck,
     eyebrow: "Bar",
     title: "Cashier tablet",
-    detail: "Scan a member, award leaves, hand over a reward."
+    detail: "Scan a member, award points, hand over a reward."
   },
   {
     href: "/manager",
@@ -46,7 +46,7 @@ export default function Home() {
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-ink-muted">
               Three thoughtful surfaces — one for members, one for the bar, one for the studio — sharing the
-              same calm palette, the same vocabulary, and the same Leaves you earn one cup at a time.
+              same calm palette, the same vocabulary, and the same points you earn one cup at a time.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button href="/customer" icon={ArrowUpRight} iconPosition="trailing">

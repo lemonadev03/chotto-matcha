@@ -45,7 +45,7 @@ export default async function CashierIdentifyPage() {
                 <span className="block font-medium text-charcoal">{customer.name}</span>
                 <span className="mt-1 block text-xs text-ink-muted">{customer.phone}</span>
                 <span className="counter mt-2 inline-flex items-center rounded-pill bg-sage-wash px-2.5 py-1 text-xs font-medium text-matcha-deep">
-                  {formatPoints(customer.pointsBalance)} leaves
+                  {formatPoints(customer.pointsBalance)} points
                 </span>
               </Link>
             ))}

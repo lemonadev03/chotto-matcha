@@ -52,7 +52,7 @@ export default async function CashierPage({
           </h2>
           <p className="mt-2 text-sm leading-6 text-ink-muted">
             {activeShift
-              ? "Identify a member, then award leaves or redeem a reward."
+              ? "Identify a member, then award points or redeem a reward."
               : "Enter your assigned PIN to unlock cashier actions."}
           </p>
           {activeShift ? (

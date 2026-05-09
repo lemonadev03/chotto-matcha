@@ -3,7 +3,7 @@ import { CustomerShell } from "@/components/customer/customer-shell";
 import { TierBadge } from "@/components/customer/tier-badge";
 import { requireCustomerSession } from "@/lib/auth/session";
 import { initials, formatPoints } from "@/lib/formatters";
-import { getNextTier, getTier, leavesToNextTier, tiers } from "@/lib/loyalty";
+import { getNextTier, getTier, pointsToNextTier, tiers } from "@/lib/loyalty";
 
 const links = [
   { label: "Notifications", description: "Quiet pings only", icon: Sparkles, href: "#" },
@@ -14,7 +14,7 @@ export default async function CustomerProfilePage() {
   const { customer } = await requireCustomerSession();
   const tier = getTier(customer.pointsBalance);
   const nextTier = getNextTier(customer.pointsBalance);
-  const toNext = leavesToNextTier(customer.pointsBalance);
+  const toNext = pointsToNextTier(customer.pointsBalance);
 
   return (
     <CustomerShell>
@@ -30,7 +30,7 @@ export default async function CustomerProfilePage() {
         </div>
         <p className="mt-3 text-sm leading-5 text-ink-muted">
           {nextTier
-            ? `${formatPoints(toNext)} leaves to ${nextTier.name}.`
+            ? `${formatPoints(toNext)} points to ${nextTier.name}.`
             : "You’ve reached the deepest steep — thank you."}
         </p>
       </section>
@@ -61,6 +61,7 @@ export default async function CustomerProfilePage() {
         <ul className="mt-3 grid gap-2">
           {tiers.map((row) => {
             const isCurrent = row.id === tier.id;
+            const TierIcon = row.icon;
             return (
               <li
                 key={row.id}
@@ -70,7 +71,16 @@ export default async function CustomerProfilePage() {
                     : "flex items-center gap-3 rounded-md border border-line-soft bg-cream p-4"
                 }
               >
-                <span className="text-2xl" aria-hidden="true">{row.glyph}</span>
+                <span
+                  className={
+                    isCurrent
+                      ? "grid h-10 w-10 shrink-0 place-items-center rounded-pill bg-matcha-deep text-cream"
+                      : "grid h-10 w-10 shrink-0 place-items-center rounded-pill bg-stone text-matcha-deep"
+                  }
+                  aria-hidden="true"
+                >
+                  <TierIcon className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                </span>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-charcoal">{row.name}</p>
                   <p className="text-xs text-ink-muted">{row.vibe}</p>

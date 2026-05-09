@@ -40,7 +40,7 @@ export default async function CustomerActivityPage() {
 
       <div className="mt-6 grid grid-cols-2 gap-3">
         <div className="rounded-md border border-line-soft bg-cream p-4">
-          <p className="eyebrow text-ink-muted">All-time leaves</p>
+          <p className="eyebrow text-ink-muted">All-time points</p>
           <p className="counter mt-3 font-display text-[28px] font-medium leading-none text-charcoal">
             {formatPoints(earned)}
           </p>

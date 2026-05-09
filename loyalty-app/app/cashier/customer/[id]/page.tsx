@@ -21,7 +21,7 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
       <section className="rounded-lg border border-line-soft bg-cream p-7">
         <Eyebrow className="text-matcha-deep">Member found</Eyebrow>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
-          <h1 className="font-display text-[48px] font-medium leading-[52px] text-charcoal">
+          <h1 className="font-display text-[40px] font-medium leading-[44px] text-charcoal sm:text-[44px] sm:leading-[48px]">
             {customer.name}
           </h1>
           <TierBadge tier={tier} />
@@ -30,20 +30,21 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
 
         <div className="relative mt-7 overflow-hidden rounded-lg bg-matcha-deep p-7 text-cream shadow-md">
           <Leaf
-            className="pointer-events-none absolute -right-6 top-1/2 h-44 w-44 -translate-y-1/2 text-cream/15"
-            strokeWidth={1.2}
+            className="pointer-events-none absolute -right-10 -top-6 h-56 w-56 text-cream/[0.07]"
+            strokeWidth={1}
+            fill="currentColor"
             aria-hidden="true"
           />
           <p className="eyebrow relative text-cream/70">Current balance</p>
-          <p className="counter relative mt-3 font-display text-[72px] font-medium leading-none">
+          <p className="counter relative mt-3 font-display text-[64px] font-medium leading-none">
             {formatPoints(customer.pointsBalance)}
           </p>
-          <p className="relative mt-2 text-cream/75">leaves</p>
+          <p className="relative mt-2 text-sm text-cream/75">available points</p>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Button href={`/cashier/award?customerId=${customer.id}`} icon={PlusCircle}>
-            Award leaves
+            Award points
           </Button>
           <Button href={`/cashier/redeem?customerId=${customer.id}`} variant="secondary" icon={Gift}>
             Redeem reward

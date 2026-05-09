@@ -20,7 +20,7 @@ export default async function CustomerRewardsPage() {
           Your rewards
         </h1>
         <p className="mt-2 text-sm leading-5 text-ink-muted">
-          {formatPoints(customer.pointsBalance)} leaves to spend, slowly.
+          {formatPoints(customer.pointsBalance)} points to spend, slowly.
         </p>
         <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
           {filters.map((filter, index) => (
@@ -56,7 +56,7 @@ export default async function CustomerRewardsPage() {
         <h2 className="font-display text-[20px] font-medium leading-7 text-charcoal">
           Soon
         </h2>
-        <p className="mt-1 text-sm text-ink-muted">A few more leaves and these are yours.</p>
+        <p className="mt-1 text-sm text-ink-muted">A few more points and these are yours.</p>
         <div className="mt-3 grid gap-3">
           {onTheWay.map((reward) => (
             <RewardCard key={reward.id} reward={reward} customer={customer} />

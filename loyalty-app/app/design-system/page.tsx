@@ -293,10 +293,10 @@ export default function DesignSystemPage() {
             <SectionHeader eyebrow="09" title="Components" />
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
               <PointsBalanceCard
-                leaves={customer.pointsBalance}
+                points={customer.pointsBalance}
                 tier={tier}
                 nextTier={nextTier}
-                leavesToNext={toNext}
+                pointsToNext={toNext}
                 progress={progress}
               />
               <RewardCard reward={rewards[0]} customer={customer} />
@@ -344,27 +344,30 @@ export default function DesignSystemPage() {
           <section id="tiers" className="scroll-mt-6">
             <SectionHeader eyebrow="10" title="Tiers" hint="Status grows with cumulative leaves earned." />
             <ul className="mt-6 grid gap-3 sm:grid-cols-3">
-              {tiers.map((row) => (
-                <li
-                  key={row.id}
-                  className="flex items-center gap-3 rounded-md border border-line-soft bg-cream p-5"
-                >
-                  <span className="text-3xl" aria-hidden="true">
-                    {row.glyph}
-                  </span>
-                  <div>
-                    <p className="font-display text-[20px] font-medium leading-7 text-charcoal">
-                      {row.name}
-                    </p>
-                    <p className="counter text-xs text-ink-muted">
-                      {row.max === null
-                        ? `${row.min}+ leaves`
-                        : `${row.min}–${row.max} leaves`}
-                    </p>
-                    <p className="mt-1 text-xs text-ink-muted">{row.vibe}</p>
-                  </div>
-                </li>
-              ))}
+              {tiers.map((row) => {
+                const TierIcon = row.icon;
+                return (
+                  <li
+                    key={row.id}
+                    className="flex items-center gap-3 rounded-md border border-line-soft bg-cream p-5"
+                  >
+                    <span className="grid h-10 w-10 place-items-center rounded-pill bg-sage-wash text-matcha-deep">
+                      <TierIcon className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+                    </span>
+                    <div>
+                      <p className="font-display text-[20px] font-medium leading-7 text-charcoal">
+                        {row.name}
+                      </p>
+                      <p className="counter text-xs text-ink-muted">
+                        {row.max === null
+                          ? `${row.min}+ leaves`
+                          : `${row.min}–${row.max} leaves`}
+                      </p>
+                      <p className="mt-1 text-xs text-ink-muted">{row.vibe}</p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </section>
 

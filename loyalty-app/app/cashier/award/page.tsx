@@ -26,7 +26,7 @@ export default async function CashierAwardPage({
   return (
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
       <section className="rounded-lg border border-line-soft bg-cream p-7">
-        <Eyebrow className="text-matcha-deep">Award leaves</Eyebrow>
+        <Eyebrow className="text-matcha-deep">Award points</Eyebrow>
         <h1 className="mt-3 font-display text-[40px] font-medium leading-[44px] text-charcoal">
           {customer.name}
         </h1>
@@ -39,11 +39,12 @@ export default async function CashierAwardPage({
           </div>
           <div className="relative overflow-hidden rounded-md bg-matcha-deep p-5 text-cream">
             <Leaf
-              className="pointer-events-none absolute -right-4 top-1/2 h-32 w-32 -translate-y-1/2 text-cream/15"
-              strokeWidth={1.2}
+              className="pointer-events-none absolute -right-6 -top-3 h-32 w-32 text-cream/[0.08]"
+              strokeWidth={1}
+              fill="currentColor"
               aria-hidden="true"
             />
-            <p className="eyebrow relative text-cream/70">Leaves to award</p>
+            <p className="eyebrow relative text-cream/70">Points to award</p>
             <p className="counter relative mt-3 font-display text-[40px] font-medium leading-none">
               +{formatPoints(points)}
             </p>

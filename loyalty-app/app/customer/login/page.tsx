@@ -22,7 +22,7 @@ export default async function CustomerLoginPage({
         <section className="rounded-lg border border-line-soft bg-cream p-8 shadow-sm">
           <p className="eyebrow text-matcha-deep">Member</p>
           <h1 className="mt-3 font-display text-[28px] font-semibold leading-9 text-charcoal">
-            Sign in to your leaves.
+            Sign in to your points.
           </h1>
           {created ? <p className="mt-2 text-sm text-matcha-deep">Account created. Sign in to continue.</p> : null}
           <div className="mt-6">

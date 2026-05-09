@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, Users } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Building2 } from "lucide-react";
 import { ManagerShell } from "@/components/manager/manager-shell";
 import { DataTable } from "@/components/shared/table";
 import { SectionTitle } from "@/components/shared/section-title";
@@ -18,7 +18,7 @@ export default async function ManagerPage() {
   return (
     <ManagerShell>
       <div className="space-y-7">
-        <SectionTitle eyebrow="Today" title="Quietly thriving">
+        <SectionTitle eyebrow="Today" title="Manager dashboard">
           Demo data mirrors the single Postgres model planned for production.
         </SectionTitle>
 
@@ -29,20 +29,20 @@ export default async function ManagerPage() {
             detail="Active community"
           />
           <StatCard
-            label="Leaves issued"
+            label="Points issued"
             value={formatPoints(dashboardStats.pointsIssuedAllTime)}
             detail="All-time earned"
           />
           <StatCard
-            label="Leaves redeemed"
+            label="Points redeemed"
             value={formatPoints(dashboardStats.pointsRedeemedAllTime)}
             detail="All-time spent"
           />
-            <StatCard
-              label="Branches"
+          <StatCard
+            label="Branches"
             value={String(branchRows.length)}
-              detail="Pouring today"
-            />
+            detail="Pouring today"
+          />
         </div>
 
         <section>
@@ -50,13 +50,13 @@ export default async function ManagerPage() {
             Recent ledger
           </h2>
           <DataTable
-            headers={["When", "Branch", "Type", "Leaves"]}
+            headers={["When", "Branch", "Type", "Points"]}
             rows={transactionRows.map(({ transaction, branchName }) => [
               <span key={`${transaction.id}-when`} className="text-sm text-charcoal">
                 {formatDate(transaction.createdAt)}
               </span>,
               <span key={`${transaction.id}-branch`} className="inline-flex items-center gap-2 text-sm text-charcoal">
-                <Users className="h-3.5 w-3.5 text-ink-muted" strokeWidth={1.5} aria-hidden="true" />
+                <Building2 className="h-3.5 w-3.5 text-ink-muted" strokeWidth={1.75} aria-hidden="true" />
                 {branchName ?? "Manager"}
               </span>,
               <span key={`${transaction.id}-type`} className="capitalize text-sm text-ink-muted">
@@ -67,13 +67,13 @@ export default async function ManagerPage() {
                 className={
                   transaction.pointsDelta > 0
                     ? "counter inline-flex items-center gap-1 text-sm font-medium text-matcha-deep"
-                    : "counter inline-flex items-center gap-1 text-sm font-medium text-ink-muted"
+                    : "counter inline-flex items-center gap-1 text-sm font-medium text-error-text"
                 }
               >
                 {transaction.pointsDelta > 0 ? (
-                  <ArrowUpRight className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
+                  <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
                 ) : (
-                  <ArrowDownRight className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
+                  <ArrowDownRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
                 )}
                 {transaction.pointsDelta > 0 ? "+" : ""}
                 {formatPoints(transaction.pointsDelta)}
