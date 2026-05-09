@@ -17,6 +17,7 @@ import {
   userRoles
 } from "@/db/schema";
 import { auth } from "@/lib/auth/server";
+import { sendSignInLink } from "@/lib/auth/magic-link";
 import { hashDemoPin, isValidPin } from "@/lib/auth/pin";
 import { requireManagerSession } from "@/lib/auth/session";
 import { manualAdjustPoints } from "@/lib/data/transactions";
@@ -24,7 +25,8 @@ import { deleteAssetObject, putAssetObject } from "@/lib/storage";
 
 export type CreateAccountState = {
   error?: string;
-  temporaryPassword?: string;
+  invitationSent?: boolean;
+  invitationFailed?: boolean;
   email?: string;
   name?: string;
 };
@@ -285,8 +287,19 @@ export async function createStaffAccount(_: CreateAccountState, formData: FormDa
       });
     });
 
+    let invitationFailed = false;
+    try {
+      await sendSignInLink({
+        email,
+        callbackURL: role === "cashier" ? "/cashier" : "/manager",
+        intent: "invite",
+        role
+      });
+    } catch {
+      invitationFailed = true;
+    }
     revalidatePath("/manager/staff");
-    return { temporaryPassword: password, email, name };
+    return { invitationSent: !invitationFailed, invitationFailed, email, name };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Could not create staff account" };
   }
@@ -383,8 +396,14 @@ export async function createCustomerAccount(_: CreateAccountState, formData: For
       await tx.insert(userRoles).values({ authUserId: authUser.id, role: "customer" }).onConflictDoNothing();
     });
 
+    let invitationFailed = false;
+    try {
+      await sendSignInLink({ email, callbackURL: "/customer", intent: "invite", role: "customer" });
+    } catch {
+      invitationFailed = true;
+    }
     revalidatePath("/manager/customers");
-    return { temporaryPassword: password, email, name };
+    return { invitationSent: !invitationFailed, invitationFailed, email, name };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Could not create customer account" };
   }

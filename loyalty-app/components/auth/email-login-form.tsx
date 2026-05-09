@@ -1,36 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth/client";
 import { Button } from "@/components/shared/button";
 import { Input } from "@/components/shared/input";
 
 export function EmailLoginForm({
   callbackURL,
-  placeholder = "you@example.com"
+  placeholder = "you@example.com",
+  role = "customer"
 }: {
   callbackURL: string;
   placeholder?: string;
+  role?: "customer" | "cashier" | "manager";
 }) {
-  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setSentTo(null);
     setPending(true);
-    const result = await signIn.email({ email, password, callbackURL });
+    const normalizedEmail = email.trim().toLowerCase();
+    const result = await signIn.magicLink({
+      email: normalizedEmail,
+      callbackURL,
+      errorCallbackURL: callbackURL,
+      metadata: { intent: "login", role }
+    });
     setPending(false);
     if (result.error) {
-      setError(result.error.message ?? "Sign in failed");
+      setError(result.error.message ?? "Could not send sign-in link");
       return;
     }
-    router.push(callbackURL);
-    router.refresh();
+    setSentTo(normalizedEmail);
   }
 
   return (
@@ -44,17 +50,14 @@ export function EmailLoginForm({
         onChange={(e) => setEmail(e.target.value)}
         placeholder={placeholder}
       />
-      <Input
-        label="Password"
-        type="password"
-        autoComplete="current-password"
-        required
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        error={error ?? undefined}
-      />
+      {error ? <p className="text-sm text-error-text">{error}</p> : null}
+      {sentTo ? (
+        <p className="rounded-md border border-sage-tint bg-sage-wash p-3 text-sm leading-6 text-matcha-deep">
+          Check {sentTo} for a secure sign-in link.
+        </p>
+      ) : null}
       <Button type="submit" disabled={pending} className="mt-2 w-full">
-        {pending ? "Just a moment..." : "Sign in"}
+        {pending ? "Sending..." : "Send sign-in link"}
       </Button>
     </form>
   );

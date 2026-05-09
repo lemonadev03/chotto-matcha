@@ -7,11 +7,11 @@ import { getSession } from "@/lib/auth/session";
 export default async function CustomerLoginPage({
   searchParams
 }: {
-  searchParams: Promise<{ created?: string }>;
+  searchParams: Promise<{ created?: string; emailFailed?: string }>;
 }) {
   const session = await getSession();
   if (session) redirect("/customer");
-  const { created } = await searchParams;
+  const { created, emailFailed } = await searchParams;
 
   return (
     <main className="min-h-screen bg-cream py-12">
@@ -24,7 +24,11 @@ export default async function CustomerLoginPage({
           <h1 className="mt-3 font-display text-[28px] font-semibold leading-9 text-charcoal">
             Sign in to your points.
           </h1>
-          {created ? <p className="mt-2 text-sm text-matcha-deep">Account created. Sign in to continue.</p> : null}
+          {created ? (
+            <p className="mt-2 text-sm text-matcha-deep">
+              Account created. {emailFailed ? "Send yourself a fresh sign-in link." : "Check your email for a sign-in link."}
+            </p>
+          ) : null}
           <div className="mt-6">
             <EmailLoginForm callbackURL="/customer" placeholder="lia@example.com" />
           </div>

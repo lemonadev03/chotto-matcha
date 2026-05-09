@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { KeyRound } from "lucide-react";
+import { Mail } from "lucide-react";
 import { createCustomerAccount, type CreateAccountState } from "@/app/manager/actions";
 import { Button } from "@/components/shared/button";
 import { Input } from "@/components/shared/input";
@@ -18,11 +18,18 @@ export function CustomerCreateForm() {
       <Input label="Email" name="email" type="email" required />
       <Input label="Phone" name="phone" type="tel" required />
       {state.error ? <p className="text-sm text-error-text">{state.error}</p> : null}
-      {state.temporaryPassword ? (
+      {state.invitationSent ? (
         <div className="rounded-md border border-sage-tint bg-sage-wash p-4">
-          <Pill icon={KeyRound}>Temporary password</Pill>
-          <p className="mt-3 font-mono text-sm text-charcoal">{state.temporaryPassword}</p>
-          <p className="mt-2 text-xs text-ink-muted">{state.email} can sign in with this password.</p>
+          <Pill icon={Mail}>Invitation email sent</Pill>
+          <p className="mt-3 text-sm text-charcoal">{state.email} can sign in with the secure link.</p>
+        </div>
+      ) : null}
+      {state.invitationFailed ? (
+        <div className="rounded-md border border-error-border bg-cream p-4">
+          <Pill tone="warn">Account created</Pill>
+          <p className="mt-3 text-sm text-charcoal">
+            {state.email} was created, but the invitation email could not be sent.
+          </p>
         </div>
       ) : null}
       <Button type="submit" disabled={pending}>

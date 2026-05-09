@@ -15,14 +15,7 @@ export function CustomerSignupForm() {
       <Input label="Name" name="name" autoComplete="name" required />
       <Input label="Email" name="email" type="email" autoComplete="email" required />
       <Input label="Phone" name="phone" type="tel" autoComplete="tel" required />
-      <Input
-        label="Password"
-        name="password"
-        type="password"
-        autoComplete="new-password"
-        required
-        error={state.error}
-      />
+      {state.error ? <p className="text-sm text-error-text">{state.error}</p> : null}
       <Button type="submit" disabled={pending} className="mt-2 w-full">
         {pending ? "Creating..." : "Create account"}
       </Button>
