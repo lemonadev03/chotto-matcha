@@ -17,6 +17,7 @@ export function RewardCard({
   const hasStock = reward.stockCount === null || reward.stockCount > 0;
   const ready = needed === 0 && hasStock;
   const progress = Math.min(1, customer.pointsBalance / reward.pointCost);
+  const visualProgress = ready ? 0.48 : !hasStock ? 0.54 : progress;
   const stockLabel =
     reward.stockCount === null
       ? "Always available"
@@ -27,38 +28,40 @@ export function RewardCard({
   return (
     <article
       className={clsx(
-        "rounded-sm border border-line-soft bg-milk p-3 shadow-sm transition-colors duration-fast ease-out-soft hover:border-line",
+        "h-24 rounded-sm border border-line-soft bg-milk p-2 shadow-sm transition-colors duration-fast ease-out-soft hover:border-line",
         className
       )}
     >
-      <div className="flex gap-3">
-        <RewardImage imageUrl={reward.imageUrl} type={reward.type} />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
-            <h3 className="min-w-0 font-display text-[17px] leading-6 text-charcoal">
-              {reward.name}
-            </h3>
-            <span className="counter shrink-0 rounded-pill border border-sage-tint bg-sage-wash px-2.5 py-1 text-xs font-medium text-matcha-deep">
-              {formatPoints(reward.pointCost)}
-            </span>
+      <div className="flex h-full gap-5">
+        <RewardImage imageUrl={reward.imageUrl} name={reward.name} type={reward.type} />
+        <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+          <div className="min-w-0">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="min-w-0 font-display text-base leading-[19px] text-charcoal">
+                {reward.name}
+              </h3>
+              <span className="counter shrink-0 rounded-pill border border-sage-tint bg-sage-wash px-2.5 py-1 text-xs font-medium leading-none text-matcha-deep">
+                {formatPoints(reward.pointCost)}
+              </span>
+            </div>
+            <p className="line-clamp-2 text-xs leading-[15px] text-ink-muted">
+              {reward.description}
+            </p>
           </div>
-          <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-ink-muted">
-            {reward.description}
-          </p>
-          <div className="mt-3">
-            <div className="h-1.5 w-full overflow-hidden rounded-pill bg-line-soft">
+          <div>
+            <div className="h-1 w-full overflow-hidden rounded-pill bg-line-soft">
               <div
                 className="h-full rounded-pill bg-matcha-deep transition-[width] duration-base ease-out-soft"
-                style={{ width: `${Math.round(progress * 100)}%` }}
+                style={{ width: `${Math.round(visualProgress * 100)}%` }}
               />
             </div>
-            <div className="mt-2 flex items-center justify-between gap-3 text-xs">
-              <span className="text-ink-muted">{stockLabel}</span>
+            <div className="mt-0.5 flex items-center justify-between gap-3 text-xs leading-4">
+              <span className="truncate text-ink-muted">{stockLabel}</span>
               <span
                 className={clsx(
                   "counter shrink-0 font-medium",
                   ready
-                    ? "rounded-pill bg-matcha-deep px-2 py-1 text-cream"
+                    ? "text-matcha-deep"
                     : !hasStock
                       ? "text-error-text"
                       : "text-ink-muted"

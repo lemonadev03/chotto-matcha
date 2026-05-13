@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight, Gift, QrCode } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, ChevronRight, Gift, QrCode } from "lucide-react";
 import { CustomerShell } from "@/components/customer/customer-shell";
 import { PointsBalanceCard } from "@/components/customer/points-balance-card";
 import { RewardCard } from "@/components/customer/reward-card";
@@ -36,17 +36,17 @@ export default async function CustomerHome() {
         progress={progress}
         greeting={<>Hi, {firstName}</>}
         actions={
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-[18px]">
             <Link
               href="/customer/qr"
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-pill bg-milk px-4 text-sm font-semibold text-matcha-deep shadow-sm transition-colors duration-fast ease-out-soft hover:bg-sage-wash"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-pill bg-milk px-4 font-display text-[17px] font-medium text-matcha-deep shadow-sm transition-colors duration-fast ease-out-soft hover:bg-sage-wash"
             >
               <QrCode className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               Show QR
             </Link>
             <Link
               href="/customer/rewards"
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-pill border border-cream/25 px-4 text-sm font-semibold text-cream transition-colors duration-fast ease-out-soft hover:bg-cream/10"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-pill border border-cream/70 px-4 font-display text-[17px] font-medium text-cream transition-colors duration-fast ease-out-soft hover:bg-cream/10"
             >
               <Gift className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               Rewards
@@ -55,41 +55,41 @@ export default async function CustomerHome() {
         }
       />
 
-      <section className="mt-7">
-        <header className="mb-3 flex items-end justify-between">
+      <section className="mt-[15px]">
+        <header className="mb-1.5 flex items-end justify-between">
           <div>
             <p className="eyebrow text-matcha-deep">Today&apos;s moment</p>
-            <h2 className="mt-2 font-display text-[24px] font-medium leading-[30px] text-charcoal">
+            <h2 className="font-display text-[24px] font-medium leading-[29px] text-charcoal">
               Ready to redeem
             </h2>
           </div>
           <Link
             href="/customer/rewards"
-            className="text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
+            className="inline-flex items-center gap-0.5 text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
           >
             See all
+            <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
           </Link>
         </header>
-        <div className="grid gap-3">
+        <div className="grid gap-3.5">
           {featured.map((reward) => (
             <RewardCard key={reward.id} reward={reward} customer={customer} />
           ))}
         </div>
       </section>
 
-      <section className="mt-32">
-        <header className="mb-3 flex items-end justify-between">
-          <h2 className="font-display text-[24px] font-medium leading-[30px] text-charcoal">
-            Recent activity
-          </h2>
+      <section className="mt-2.5">
+        <header className="mb-2.5 flex items-center justify-between">
+          <p className="eyebrow text-matcha-deep">Recent activity</p>
           <Link
             href="/customer/activity"
-            className="text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
+            className="inline-flex items-center gap-0.5 text-sm font-medium text-matcha-deep transition-colors duration-fast ease-out-soft hover:text-forest"
           >
             View all
+            <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
           </Link>
         </header>
-        <ul className="grid gap-2">
+        <ul className="divide-y divide-line-soft overflow-hidden rounded-sm border border-line-soft bg-milk shadow-sm">
           {recent.map((transaction) => {
             const earned = transaction.pointsDelta > 0;
             const label =
@@ -99,11 +99,25 @@ export default async function CustomerHome() {
             return (
               <li
                 key={transaction.id}
-                className="flex items-center justify-between gap-3 rounded-sm border border-line-soft bg-milk px-4 py-3 shadow-sm"
+                className="flex items-center justify-between gap-3 px-4 py-1"
               >
-                <div className="min-w-0">
-                  <p className="truncate font-medium text-charcoal">{label}</p>
-                  <p className="mt-0.5 text-xs text-ink-muted">
+                <span
+                  className={
+                    earned
+                      ? "grid h-8 w-8 shrink-0 place-items-center rounded-pill bg-sage-wash text-matcha-deep"
+                      : "grid h-8 w-8 shrink-0 place-items-center rounded-pill bg-rice text-error-text"
+                  }
+                  aria-hidden="true"
+                >
+                  {earned ? (
+                    <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  ) : (
+                    <ArrowDownRight className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  )}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium leading-4 text-charcoal">{label}</p>
+                  <p className="text-xs leading-[15px] text-ink-muted">
                     {formatDate(transaction.createdAt)}
                   </p>
                 </div>
@@ -114,11 +128,6 @@ export default async function CustomerHome() {
                       : "counter inline-flex shrink-0 items-center gap-1 text-sm font-medium text-error-text"
                   }
                 >
-                  {earned ? (
-                    <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
-                  ) : (
-                    <ArrowDownRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
-                  )}
                   {earned ? "+" : ""}
                   {formatPoints(transaction.pointsDelta)}
                 </span>

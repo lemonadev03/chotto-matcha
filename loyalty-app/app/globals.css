@@ -126,8 +126,10 @@ textarea {
 
 .matcha-panel {
   background:
-    linear-gradient(135deg, rgba(255, 253, 248, 0.12), rgba(255, 253, 248, 0) 42%),
-    linear-gradient(180deg, #365836 0%, #263f29 100%);
+    radial-gradient(circle at 24% 22%, rgba(255, 253, 248, 0.08), transparent 26%),
+    radial-gradient(circle at 70% 78%, rgba(18, 39, 24, 0.34), transparent 36%),
+    linear-gradient(135deg, rgba(255, 253, 248, 0.08), rgba(255, 253, 248, 0) 42%),
+    linear-gradient(180deg, #2f4f31 0%, #1f3924 100%);
 }
 
 .matcha-panel::before {
@@ -135,11 +137,11 @@ textarea {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 253, 248, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 253, 248, 0.08) 1px, transparent 1px);
-  background-size: 28px 28px;
+    radial-gradient(circle at 20% 30%, rgba(255, 253, 248, 0.08) 0 1px, transparent 1px),
+    radial-gradient(circle at 62% 58%, rgba(255, 253, 248, 0.06) 0 1px, transparent 1px);
+  background-size: 18px 20px, 23px 19px;
   -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 92%);
   mask-image: linear-gradient(180deg, #000 0%, transparent 92%);
-  opacity: 0.35;
+  opacity: 0.28;
   pointer-events: none;
 }
