@@ -10,6 +10,8 @@
   --sage-wash:   #EEF1E5;
   --stone:       #F3F1EC;
   --cream:       #FAF7F2;
+  --milk:        #FFFDF8;
+  --rice:        #F7F1E7;
   --charcoal:    #2B2B2B;
   --ink-muted:   #6B6E66;
   --ink-faint:   #9CA095;
@@ -30,6 +32,7 @@
   --shadow-sm: 0 1px 2px rgba(43,43,43,0.04), 0 1px 1px rgba(43,43,43,0.03);
   --shadow-md: 0 4px 12px rgba(43,43,43,0.06), 0 2px 4px rgba(43,43,43,0.04);
   --shadow-lg: 0 16px 32px rgba(43,43,43,0.08), 0 4px 8px rgba(43,43,43,0.04);
+  --shadow-panel: 0 24px 44px rgba(47, 75, 46, 0.16), 0 4px 10px rgba(43,43,43,0.05);
 
   --ease-out:    cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
@@ -113,4 +116,30 @@ textarea {
 .counter {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+}
+
+.customer-surface {
+  background:
+    linear-gradient(180deg, rgba(168, 180, 138, 0.16) 0, rgba(168, 180, 138, 0) 320px),
+    linear-gradient(180deg, var(--rice), var(--cream));
+}
+
+.matcha-panel {
+  background:
+    linear-gradient(135deg, rgba(255, 253, 248, 0.12), rgba(255, 253, 248, 0) 42%),
+    linear-gradient(180deg, #365836 0%, #263f29 100%);
+}
+
+.matcha-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 253, 248, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 253, 248, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 92%);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 92%);
+  opacity: 0.35;
+  pointer-events: none;
 }

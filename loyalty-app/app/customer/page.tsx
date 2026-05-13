@@ -39,14 +39,14 @@ export default async function CustomerHome() {
           <div className="grid grid-cols-2 gap-3">
             <Link
               href="/customer/qr"
-              className="inline-flex min-h-tap items-center justify-center gap-2 rounded-pill bg-cream px-4 text-sm font-medium text-matcha-deep shadow-sm transition-colors duration-fast ease-out-soft hover:bg-sage-wash"
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-pill bg-milk px-4 text-sm font-semibold text-matcha-deep shadow-sm transition-colors duration-fast ease-out-soft hover:bg-sage-wash"
             >
               <QrCode className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               Show QR
             </Link>
             <Link
               href="/customer/rewards"
-              className="inline-flex min-h-tap items-center justify-center gap-2 rounded-pill border border-cream/30 px-4 text-sm font-medium text-cream transition-colors duration-fast ease-out-soft hover:bg-cream/10"
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-pill border border-cream/25 px-4 text-sm font-semibold text-cream transition-colors duration-fast ease-out-soft hover:bg-cream/10"
             >
               <Gift className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               Rewards
@@ -55,7 +55,7 @@ export default async function CustomerHome() {
         }
       />
 
-      <section className="mt-8">
+      <section className="mt-7">
         <header className="mb-3 flex items-end justify-between">
           <div>
             <p className="eyebrow text-matcha-deep">Today&apos;s moment</p>
@@ -77,7 +77,7 @@ export default async function CustomerHome() {
         </div>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-32">
         <header className="mb-3 flex items-end justify-between">
           <h2 className="font-display text-[24px] font-medium leading-[30px] text-charcoal">
             Recent activity
@@ -99,7 +99,7 @@ export default async function CustomerHome() {
             return (
               <li
                 key={transaction.id}
-                className="flex items-center justify-between gap-3 rounded-md border border-line-soft bg-cream px-4 py-3"
+                className="flex items-center justify-between gap-3 rounded-sm border border-line-soft bg-milk px-4 py-3 shadow-sm"
               >
                 <div className="min-w-0">
                   <p className="truncate font-medium text-charcoal">{label}</p>

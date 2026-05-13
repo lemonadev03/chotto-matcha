@@ -17,6 +17,8 @@ const config: Config = {
         "ink-faint": "var(--ink-faint)",
         line: "var(--line)",
         "line-soft": "var(--line-soft)",
+        milk: "var(--milk)",
+        rice: "var(--rice)",
         "error-border": "#C56B53",
         "error-text": "#8C3D2A"
       },
@@ -48,7 +50,7 @@ const config: Config = {
       },
       letterSpacing: {
         eyebrow: "0.16em",
-        display: "-0.02em"
+        display: "0"
       },
       minHeight: {
         tap: "44px"

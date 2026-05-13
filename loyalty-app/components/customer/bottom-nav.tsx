@@ -28,7 +28,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-4 bottom-4 z-30 mx-auto flex max-w-md items-stretch justify-between rounded-pill border border-line-soft bg-cream/95 p-1.5 shadow-lg backdrop-blur"
+      className="fixed inset-x-4 bottom-4 z-30 mx-auto grid max-w-md grid-cols-5 rounded-[28px] border border-line-soft bg-milk/95 px-2 py-2 shadow-lg backdrop-blur-xl"
     >
       {items.map((item) => {
         const isActive = item.match ? item.match(pathname) : pathname.startsWith(item.href);
@@ -39,14 +39,19 @@ export function BottomNav() {
             href={item.href}
             aria-current={isActive ? "page" : undefined}
             className={clsx(
-              "relative flex min-h-tap min-w-tap flex-1 flex-col items-center justify-center gap-0.5 rounded-pill px-2 py-2 transition-colors duration-fast ease-out-soft",
-              isActive
-                ? "bg-matcha-deep text-cream"
-                : "text-ink-faint hover:bg-stone hover:text-matcha-deep"
+              "group flex min-h-[56px] min-w-tap flex-col items-center justify-center gap-1 rounded-[22px] px-1 text-[11px] font-medium leading-none transition-colors duration-fast ease-out-soft",
+              isActive ? "text-matcha-deep" : "text-ink-faint hover:text-matcha-deep"
             )}
           >
-            <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-            <span className="text-[11px] font-medium leading-tight">{item.label}</span>
+            <span
+              className={clsx(
+                "grid h-8 w-8 place-items-center rounded-pill transition-colors duration-fast ease-out-soft",
+                isActive ? "bg-matcha-deep text-cream" : "group-hover:bg-sage-wash"
+              )}
+            >
+              <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden="true" />
+            </span>
+            <span>{item.label}</span>
           </Link>
         );
       })}
