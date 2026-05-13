@@ -4,6 +4,7 @@ import { Button } from "@/components/shared/button";
 import { Eyebrow } from "@/components/shared/eyebrow";
 import { Pill } from "@/components/shared/pill";
 import { CashierShell } from "@/components/cashier/cashier-shell";
+import { RewardThumbnail } from "@/components/cashier/cashier-visuals";
 import { redeemCustomerReward } from "@/app/cashier/actions";
 import { requireCashierShiftSession } from "@/lib/auth/session";
 import { getCustomerById } from "@/lib/data/customers";
@@ -21,6 +22,7 @@ export default async function CashierRedeemPage({
   if (!customerId) notFound();
   const [customer, rewards] = await Promise.all([getCustomerById(customerId), listActiveRewards()]);
   if (!customer?.active) notFound();
+  const firstAvailableRewardId = rewards.find((reward) => canRedeem(customer, reward))?.id;
 
   return (
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
@@ -29,40 +31,50 @@ export default async function CashierRedeemPage({
           Back to member
         </Button>
       </div>
-      <section className="rounded-lg border border-line-soft bg-cream p-7">
-        <Eyebrow className="text-matcha-deep">Redeem reward</Eyebrow>
-        <h1 className="mt-3 font-display text-[40px] font-medium leading-[44px] text-charcoal">
-          {customer.name}
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-ink-muted">
-          {formatPoints(customer.pointsBalance)} points available.
-        </p>
+      <section className="cashier-panel rounded-lg p-5">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <Eyebrow className="text-matcha-deep">Redeem reward</Eyebrow>
+            <h1 className="mt-3 font-display text-[40px] font-medium leading-[44px] text-charcoal">
+              {customer.name}
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-ink-muted">
+              {formatPoints(customer.pointsBalance)} points available.
+            </p>
+          </div>
+          <Pill tone="inverse">{formatPoints(customer.pointsBalance)} pts</Pill>
+        </div>
 
-        <form action={redeemCustomerReward} className="mt-6 grid gap-3">
+        <form action={redeemCustomerReward} className="mt-5 grid gap-2">
           <input type="hidden" name="customerId" value={customer.id} />
           {rewards.map((reward) => {
             const available = canRedeem(customer, reward);
             return (
               <label
                 key={reward.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-line-soft bg-stone/30 p-4 transition-colors duration-fast ease-out-soft hover:border-matcha-deep"
+                className="grid min-h-[70px] grid-cols-[auto_1fr_auto] items-center gap-3 rounded-md border border-line-soft bg-[rgba(255,253,248,0.72)] p-2.5 transition-colors duration-fast ease-out-soft hover:border-matcha-deep has-[:checked]:border-matcha-deep has-[:checked]:bg-sage-wash"
               >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="rewardId"
-                    value={reward.id}
-                    className="h-4 w-4 accent-[var(--matcha-deep)]"
-                    disabled={!available}
-                    defaultChecked={available && reward.id === rewards[0]?.id}
+                <input
+                  type="radio"
+                  name="rewardId"
+                  value={reward.id}
+                  className="h-4 w-4 accent-[var(--matcha-deep)]"
+                  disabled={!available}
+                  defaultChecked={available && reward.id === firstAvailableRewardId}
+                />
+                <div className="flex min-w-0 items-center gap-3">
+                  <RewardThumbnail
+                    rewardId={reward.id}
+                    name={reward.name}
+                    className="h-12 w-12 shrink-0 rounded-md border border-line-soft bg-sage-wash"
                   />
-                  <div>
-                    <p className="font-medium text-charcoal">{reward.name}</p>
-                    <p className="counter mt-0.5 text-xs text-ink-muted">
+                  <span className="min-w-0">
+                    <span className="block truncate font-medium text-charcoal">{reward.name}</span>
+                    <span className="counter mt-0.5 block truncate text-xs text-ink-muted">
                       {formatPoints(reward.pointCost)} points ·{" "}
                       {reward.stockCount === null ? "Always available" : `${reward.stockCount} left`}
-                    </p>
-                  </div>
+                    </span>
+                  </span>
                 </div>
                 <Pill tone={available ? "default" : "muted"}>
                   {available ? "Ready" : "Locked"}
@@ -71,11 +83,8 @@ export default async function CashierRedeemPage({
             );
           })}
 
-          <Button type="submit" icon={CheckCircle2} className="mt-3">
+          <Button type="submit" icon={CheckCircle2} disabled={!firstAvailableRewardId} className="mt-2">
             Confirm reward
-          </Button>
-          <Button href={`/cashier/customer/${customer.id}`} variant="secondary">
-            Back
           </Button>
         </form>
       </section>

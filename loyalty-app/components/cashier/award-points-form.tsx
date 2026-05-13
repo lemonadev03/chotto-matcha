@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowLeft, CheckCircle2, Leaf } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Delete } from "lucide-react";
 import { awardCustomerPoints } from "@/app/cashier/actions";
 import { Button } from "@/components/shared/button";
+import { TeaStillLife } from "@/components/cashier/cashier-visuals";
 import { calculateEarnedPoints } from "@/lib/points";
 import { formatPeso, formatPoints } from "@/lib/formatters";
 
@@ -24,54 +25,115 @@ export function AwardPointsForm({
   const numericBillTotal = Number(billTotal);
   const safeBillTotal = Number.isFinite(numericBillTotal) && numericBillTotal > 0 ? numericBillTotal : 0;
   const points = useMemo(() => calculateEarnedPoints(safeBillTotal, earnRate), [earnRate, safeBillTotal]);
+  const digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+  function appendDigit(digit: string) {
+    setBillTotal((current) => {
+      const normalized = current === "0" ? "" : current;
+      return `${normalized}${digit}`.slice(0, 7);
+    });
+  }
 
   return (
-    <>
-      <div className="mt-7 grid gap-4 md:grid-cols-2">
-        <div className="rounded-md border border-line-soft bg-stone/40 p-5">
-          <p className="eyebrow text-ink-muted">Bill total</p>
-          <p className="mt-3 font-display text-[40px] font-medium leading-none text-charcoal">
-            {formatPeso(safeBillTotal)}
-          </p>
-        </div>
-        <div className="relative overflow-hidden rounded-md bg-matcha-deep p-5 text-cream">
-          <Leaf
-            className="pointer-events-none absolute -right-6 -top-3 h-32 w-32 text-cream/[0.08]"
-            strokeWidth={1}
-            fill="currentColor"
-            aria-hidden="true"
-          />
-          <p className="eyebrow relative text-cream/70">Points to award</p>
-          <p className="counter relative mt-3 font-display text-[40px] font-medium leading-none">
-            +{formatPoints(points)}
-          </p>
-        </div>
-      </div>
-
-      <form action={awardCustomerPoints} className="mt-6 grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+    <form action={awardCustomerPoints} className="mt-6">
         <input type="hidden" name="customerId" value={customerId} />
-        <label className="grid gap-2 text-sm font-medium text-charcoal">
-          Bill total
-          <input
-            name="billTotal"
-            type="number"
-            min="1"
-            step="0.01"
-            value={billTotal}
-            onChange={(event) => setBillTotal(event.target.value)}
-            className="h-12 rounded-md border border-line bg-cream px-4 focus:border-matcha-deep focus:outline-none focus:shadow-focus"
-          />
-        </label>
-        <Button type="submit" icon={CheckCircle2} disabled={safeBillTotal <= 0}>
-          Confirm award
-        </Button>
-        <Button href={`/cashier/customer/${customerId}`} variant="secondary" icon={ArrowLeft}>
-          Back
-        </Button>
+      <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
+        <div className="rounded-md border border-line-soft bg-[rgba(255,253,248,0.76)] p-4 shadow-sm">
+          <label className="grid gap-2 text-xs font-semibold uppercase tracking-eyebrow text-ink-muted">
+            Bill total
+            <input
+              name="billTotal"
+              type="number"
+              min="1"
+              step="0.01"
+              value={billTotal}
+              onChange={(event) => setBillTotal(event.target.value)}
+              className="h-14 w-full min-w-0 rounded-md border border-line bg-cream px-4 text-[28px] font-medium tracking-tight text-charcoal focus:border-matcha-deep focus:outline-none focus:shadow-focus"
+            />
+          </label>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {digits.map((digit) => (
+              <button
+                key={digit}
+                type="button"
+                onClick={() => appendDigit(digit)}
+                className="grid h-12 place-items-center rounded-sm border border-line bg-cream font-medium text-charcoal transition-colors hover:border-matcha-deep hover:bg-sage-wash"
+              >
+                {digit}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setBillTotal("")}
+              className="grid h-12 place-items-center rounded-sm border border-line bg-cream font-medium text-charcoal transition-colors hover:border-matcha-deep hover:bg-sage-wash"
+            >
+              C
+            </button>
+            <button
+              type="button"
+              onClick={() => appendDigit("0")}
+              className="grid h-12 place-items-center rounded-sm border border-line bg-cream font-medium text-charcoal transition-colors hover:border-matcha-deep hover:bg-sage-wash"
+            >
+              0
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillTotal((current) => current.slice(0, -1))}
+              className="grid h-12 place-items-center rounded-sm border border-line bg-cream text-charcoal transition-colors hover:border-matcha-deep hover:bg-sage-wash"
+            >
+              <Delete className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+
+        <div className="grid gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-md border border-line-soft bg-[rgba(255,253,248,0.76)] p-5 shadow-sm">
+              <p className="eyebrow text-ink-muted">Bill total</p>
+              <p className="mt-4 font-display text-[44px] font-medium leading-none text-charcoal">
+                {formatPeso(safeBillTotal)}
+              </p>
+            </div>
+            <div className="cashier-points-panel rounded-md p-5">
+              <p className="eyebrow relative text-[#FAF7F2]/70">Points to award</p>
+              <p className="counter relative mt-4 font-display text-[44px] font-medium leading-none">
+                +{formatPoints(points)}
+              </p>
+              <p className="relative mt-2 text-sm text-[#FAF7F2]/72">1 point per {formatPeso(1 / earnRate)}</p>
+              <TeaStillLife className="pointer-events-none absolute bottom-0 right-0 h-full w-[46%] opacity-65 [mask-image:linear-gradient(90deg,transparent,black_34%)]" />
+            </div>
+          </div>
+
+          <div className="rounded-md border border-line-soft bg-[rgba(255,253,248,0.76)] p-5">
+            <dl className="grid gap-3 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-ink-muted">Bill total</dt>
+                <dd className="counter font-medium text-charcoal">{formatPeso(safeBillTotal)}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-ink-muted">Points rate</dt>
+                <dd className="counter font-medium text-charcoal">{earnRate} pt per ₱1</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-ink-muted">Points to award</dt>
+                <dd className="counter font-semibold text-matcha-deep">+{formatPoints(points)} pts</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-[1fr_180px]">
+            <Button type="submit" icon={CheckCircle2} disabled={safeBillTotal <= 0}>
+              Confirm award
+            </Button>
+            <Button href={`/cashier/customer/${customerId}`} variant="secondary" icon={ArrowLeft}>
+              Cancel
+            </Button>
+          </div>
+        </div>
         {showBillError ? (
-          <p className="text-sm text-error-text sm:col-span-3">Enter a bill total greater than zero.</p>
+          <p className="text-sm text-error-text lg:col-span-2">Enter a bill total greater than zero.</p>
         ) : null}
-      </form>
-    </>
+      </div>
+    </form>
   );
 }

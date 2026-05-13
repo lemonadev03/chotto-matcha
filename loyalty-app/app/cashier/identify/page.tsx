@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowLeft, Camera, Search } from "lucide-react";
+import { ArrowLeft, ChevronRight, Search } from "lucide-react";
 import { Button } from "@/components/shared/button";
 import { CashierShell } from "@/components/cashier/cashier-shell";
 import { Eyebrow } from "@/components/shared/eyebrow";
+import { CustomerAvatar, ScanFrame } from "@/components/cashier/cashier-visuals";
 import { requireCashierShiftSession } from "@/lib/auth/session";
 import { listCustomers } from "@/lib/data/customers";
 import { formatPoints } from "@/lib/formatters";
@@ -15,30 +16,38 @@ export default async function CashierIdentifyPage() {
     <CashierShell sessionLabel={`${branch.name} · ${profile.name}`}>
       <div className="mb-4">
         <Button href="/cashier" variant="tertiary" icon={ArrowLeft}>
-          Back to shift
+          Back to dashboard
         </Button>
       </div>
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        <section className="grid min-h-[420px] place-items-center rounded-lg border border-line-soft bg-cream p-8 text-center shadow-sm">
-          <div>
-            <div className="mx-auto grid h-24 w-24 place-items-center rounded-pill bg-matcha-deep text-cream shadow-md">
-              <Camera className="h-9 w-9" strokeWidth={1.5} aria-hidden="true" />
-            </div>
-            <h1 className="mt-6 font-display text-[36px] font-medium leading-[42px] text-charcoal">
-              Scan a member&apos;s code
-            </h1>
-            <p className="mx-auto mt-3 max-w-md text-base leading-6 text-ink-muted">
-              Camera wiring lands in the device pass. For the demo, pick a member from the lookup.
+      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+        <section className="cashier-panel grid min-h-[540px] place-items-center rounded-lg p-8 text-center">
+          <div className="w-full max-w-md">
+            <Eyebrow className="text-matcha-deep">Scan member code</Eyebrow>
+            <ScanFrame className="mt-8" />
+            <p className="mx-auto mt-6 max-w-xs text-sm leading-6 text-ink-muted">
+              Position the member code inside the frame.
             </p>
+            <div className="mx-auto mt-6 flex max-w-xs items-center gap-3">
+              <span className="h-px flex-1 bg-line" />
+              <span className="text-xs font-medium uppercase tracking-eyebrow text-ink-faint">or</span>
+              <span className="h-px flex-1 bg-line" />
+            </div>
+            <label className="mx-auto mt-5 flex max-w-xs items-center gap-2 rounded-md border border-line bg-milk px-4 py-3 text-sm text-ink-muted focus-within:border-matcha-deep focus-within:shadow-focus">
+              <Search className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+              <input
+                placeholder="Enter phone or name manually"
+                className="min-w-0 flex-1 bg-transparent placeholder:text-ink-faint focus:outline-none"
+              />
+            </label>
           </div>
         </section>
-        <aside className="rounded-lg border border-line-soft bg-cream p-5 shadow-sm">
+        <aside className="cashier-panel rounded-lg p-5">
           <Eyebrow className="text-matcha-deep">Lookup</Eyebrow>
-          <label className="mt-3 flex items-center gap-2 rounded-md border border-line bg-cream px-4 py-3 text-sm text-ink-muted focus-within:border-matcha-deep focus-within:shadow-focus">
+          <label className="mt-4 flex items-center gap-2 rounded-md border border-line bg-milk px-4 py-3 text-sm text-ink-muted focus-within:border-matcha-deep focus-within:shadow-focus">
             <Search className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
             <input
               placeholder="Search phone or name"
-              className="flex-1 bg-transparent placeholder:text-ink-faint focus:outline-none"
+              className="min-w-0 flex-1 bg-transparent placeholder:text-ink-faint focus:outline-none"
             />
           </label>
           <div className="mt-4 grid gap-2">
@@ -46,13 +55,21 @@ export default async function CashierIdentifyPage() {
               <Link
                 key={customer.id}
                 href={`/cashier/customer/${customer.id}`}
-                className="rounded-md border border-line-soft bg-stone/30 p-4 transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:bg-sage-wash"
+                className="group flex min-h-[84px] items-center gap-3 rounded-md border border-line-soft bg-[rgba(255,253,248,0.72)] p-3.5 transition-colors duration-fast ease-out-soft hover:border-matcha-deep hover:bg-sage-wash"
               >
-                <span className="block font-medium text-charcoal">{customer.name}</span>
-                <span className="mt-1 block text-xs text-ink-muted">{customer.phone}</span>
-                <span className="counter mt-2 inline-flex items-center rounded-pill bg-sage-wash px-2.5 py-1 text-xs font-medium text-matcha-deep">
-                  {formatPoints(customer.pointsBalance)} points
+                <CustomerAvatar name={customer.name} className="h-11 w-11" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium text-charcoal">{customer.name}</span>
+                  <span className="mt-1 block truncate text-xs text-ink-muted">{customer.phone}</span>
                 </span>
+                <span className="counter inline-flex shrink-0 items-center rounded-pill bg-sage-wash px-2.5 py-1 text-xs font-medium text-matcha-deep">
+                  {formatPoints(customer.pointsBalance)} pts
+                </span>
+                <ChevronRight
+                  className="h-4 w-4 shrink-0 text-ink-faint transition-colors group-hover:text-matcha-deep"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
               </Link>
             ))}
           </div>

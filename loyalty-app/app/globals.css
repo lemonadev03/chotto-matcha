@@ -17,6 +17,9 @@
   --ink-faint:   #9CA095;
   --line:        #E4E1D9;
   --line-soft:   #ECE9E2;
+  --cashier-rail: #18381F;
+  --cashier-rail-2: #24492B;
+  --cashier-card: rgba(255, 253, 248, 0.82);
 
   --font-display: "Playfair Display", Georgia, serif;
   --font-body:    "Inter", -apple-system, system-ui, sans-serif;
@@ -144,4 +147,112 @@ textarea {
   mask-image: linear-gradient(180deg, #000 0%, transparent 92%);
   opacity: 0.28;
   pointer-events: none;
+}
+
+.cashier-surface {
+  background:
+    linear-gradient(90deg, rgba(47, 75, 46, 0.05) 0, transparent 220px),
+    repeating-linear-gradient(0deg, rgba(47, 75, 46, 0.025) 0 1px, transparent 1px 5px),
+    var(--stone);
+}
+
+.cashier-panel {
+  border: 1px solid rgba(47, 75, 46, 0.12);
+  background: var(--cashier-card);
+  box-shadow: 0 20px 50px rgba(47, 75, 46, 0.08), 0 1px 2px rgba(43, 43, 43, 0.04);
+}
+
+.cashier-rail {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.08), transparent 30%),
+    linear-gradient(180deg, var(--cashier-rail-2), var(--cashier-rail));
+  box-shadow: inset -1px 0 0 rgba(255, 253, 248, 0.12), 0 18px 40px rgba(24, 56, 31, 0.18);
+}
+
+.cashier-rail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 253, 248, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 253, 248, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.cashier-points-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(255, 253, 248, 0.12), rgba(255, 253, 248, 0) 42%),
+    linear-gradient(180deg, #2f5631 0%, #1f3f25 100%);
+  color: var(--cream);
+}
+
+.cashier-points-panel::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: rgba(255, 253, 248, 0.22);
+}
+
+.cashier-scan-frame {
+  position: relative;
+  width: min(260px, 72vw);
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+.cashier-scan-frame .corner {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  border-color: var(--matcha-deep);
+}
+
+.cashier-scan-frame .top-left {
+  left: 0;
+  top: 0;
+  border-left: 2px solid;
+  border-top: 2px solid;
+  border-radius: 18px 0 0;
+}
+
+.cashier-scan-frame .top-right {
+  right: 0;
+  top: 0;
+  border-right: 2px solid;
+  border-top: 2px solid;
+  border-radius: 0 18px 0 0;
+}
+
+.cashier-scan-frame .bottom-left {
+  left: 0;
+  bottom: 0;
+  border-left: 2px solid;
+  border-bottom: 2px solid;
+  border-radius: 0 0 0 18px;
+}
+
+.cashier-scan-frame .bottom-right {
+  right: 0;
+  bottom: 0;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+  border-radius: 0 0 18px;
+}
+
+.cashier-scan-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42px;
+  height: 42px;
+  transform: translate(-50%, -50%);
+  border: 2px dashed var(--matcha-deep);
+  border-radius: 12px;
 }

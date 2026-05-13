@@ -26,7 +26,7 @@ export default async function CashierAwardPage({
           Back to member
         </Button>
       </div>
-      <section className="rounded-lg border border-line-soft bg-cream p-7">
+      <section className="cashier-panel rounded-lg p-6">
         <Eyebrow className="text-matcha-deep">Award points</Eyebrow>
         <h1 className="mt-3 font-display text-[40px] font-medium leading-[44px] text-charcoal">
           {customer.name}

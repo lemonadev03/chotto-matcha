@@ -1,11 +1,12 @@
-import { ArrowLeft, Gift, Leaf, PlusCircle } from "lucide-react";
+import { ArrowLeft, Gift, PlusCircle, ReceiptText } from "lucide-react";
 import { Button } from "@/components/shared/button";
 import { Eyebrow } from "@/components/shared/eyebrow";
 import { CashierShell } from "@/components/cashier/cashier-shell";
+import { CustomerAvatar, TeaStillLife } from "@/components/cashier/cashier-visuals";
 import { TierBadge } from "@/components/customer/tier-badge";
 import { requireCashierShiftSession } from "@/lib/auth/session";
-import { getCustomerById } from "@/lib/data/customers";
-import { formatPoints } from "@/lib/formatters";
+import { getCustomerById, getCustomerRecentTransactions } from "@/lib/data/customers";
+import { formatDate, formatPoints } from "@/lib/formatters";
 import { getTier } from "@/lib/loyalty";
 import { notFound } from "next/navigation";
 
@@ -14,6 +15,7 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
   const { id } = await params;
   const customer = await getCustomerById(id);
   if (!customer?.active) notFound();
+  const recentTransactions = await getCustomerRecentTransactions(customer.id, 2);
   const tier = getTier(customer.pointsBalance);
 
   return (
@@ -23,28 +25,28 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
           Back to lookup
         </Button>
       </div>
-      <section className="rounded-lg border border-line-soft bg-cream p-7">
+      <section className="cashier-panel rounded-lg p-6">
         <Eyebrow className="text-matcha-deep">Member found</Eyebrow>
-        <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
-          <h1 className="font-display text-[40px] font-medium leading-[44px] text-charcoal sm:text-[44px] sm:leading-[48px]">
-            {customer.name}
-          </h1>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <CustomerAvatar name={customer.name} className="h-16 w-16 text-lg" />
+            <div>
+              <h1 className="font-display text-[40px] font-medium leading-[44px] text-charcoal sm:text-[44px] sm:leading-[48px]">
+                {customer.name}
+              </h1>
+              <p className="mt-1 text-sm leading-6 text-ink-muted">{customer.phone}</p>
+            </div>
+          </div>
           <TierBadge tier={tier} />
         </div>
-        <p className="mt-2 text-sm leading-6 text-ink-muted">{customer.phone}</p>
 
-        <div className="relative mt-7 overflow-hidden rounded-lg bg-matcha-deep p-7 text-cream shadow-md">
-          <Leaf
-            className="pointer-events-none absolute -right-10 -top-6 h-56 w-56 text-cream/[0.07]"
-            strokeWidth={1}
-            fill="currentColor"
-            aria-hidden="true"
-          />
-          <p className="eyebrow relative text-cream/70">Current balance</p>
+        <div className="cashier-points-panel mt-7 rounded-lg p-7 shadow-md">
+          <p className="eyebrow relative text-[#FAF7F2]/70">Current balance</p>
           <p className="counter relative mt-3 font-display text-[64px] font-medium leading-none">
-            {formatPoints(customer.pointsBalance)}
+            {formatPoints(customer.pointsBalance)} <span className="text-[28px]">pts</span>
           </p>
-          <p className="relative mt-2 text-sm text-cream/75">available points</p>
+          <p className="relative mt-2 text-sm text-[#FAF7F2]/75">Available points</p>
+          <TeaStillLife className="pointer-events-none absolute bottom-0 right-0 h-full w-[42%] opacity-70 [mask-image:linear-gradient(90deg,transparent,black_32%)]" />
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -54,6 +56,41 @@ export default async function CashierCustomerPage({ params }: { params: Promise<
           <Button href={`/cashier/redeem?customerId=${customer.id}`} variant="secondary" icon={Gift}>
             Redeem reward
           </Button>
+        </div>
+
+        <div className="mt-6 rounded-md border border-line-soft bg-[rgba(255,253,248,0.72)] p-5">
+          <div className="flex items-center justify-between gap-3">
+            <Eyebrow className="text-matcha-deep">Recent activity</Eyebrow>
+            <span className="text-xs font-medium text-ink-muted">{recentTransactions.length} latest</span>
+          </div>
+          <div className="mt-4 grid gap-3">
+            {recentTransactions.length > 0 ? (
+              recentTransactions.map((transaction) => (
+                <div
+                  key={transaction.id}
+                  className="grid gap-3 rounded-md border border-line-soft bg-[rgba(250,247,242,0.72)] p-3.5 sm:grid-cols-[1fr_auto] sm:items-center"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-9 w-9 place-items-center rounded-pill bg-sage-wash text-matcha-deep">
+                      <ReceiptText className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-medium capitalize text-charcoal">
+                        {transaction.type === "earn" ? "Earned from purchase" : transaction.type}
+                      </p>
+                      <p className="mt-0.5 text-xs text-ink-muted">{formatDate(transaction.createdAt)}</p>
+                    </div>
+                  </div>
+                  <p className="counter text-sm font-semibold text-matcha-deep sm:text-right">
+                    {transaction.pointsDelta > 0 ? "+" : ""}
+                    {formatPoints(transaction.pointsDelta)} pts
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-ink-muted">No recent activity.</p>
+            )}
+          </div>
         </div>
       </section>
     </CashierShell>
